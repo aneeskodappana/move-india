@@ -26,4 +26,5 @@ Each later milestone adds its own suite before that milestone can be marked comp
 | Milestone | Gate status | Next milestone |
 |---|---|---|
 | M0 · Setup and scaffold | Passed · 2026-08-18 · `2f23921` | M1 unlocked |
-| M1 · Data layer | In progress | M2 locked |
+| M1 · Data layer | Passed · 2026-08-18 · `5f22ad5` | M2 unlocked |
+| M2 · Auth and registration | Not started | M3 locked |
