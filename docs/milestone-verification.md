@@ -25,5 +25,5 @@ Each later milestone adds its own suite before that milestone can be marked comp
 
 | Milestone | Gate status | Next milestone |
 |---|---|---|
-| M0 · Setup and scaffold | Pending verifier run | M1 locked |
-| M1 · Data layer | Not started | M2 locked |
+| M0 · Setup and scaffold | Passed · 2026-08-18 · `2f23921` | M1 unlocked |
+| M1 · Data layer | In progress | M2 locked |

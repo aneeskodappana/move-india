@@ -68,6 +68,74 @@ const suites = {
     ],
     smokeTest: true,
   },
+  M1: {
+    requiredFiles: [
+      "src/db/schema.ts",
+      "src/db/seed.ts",
+      "src/db/seed-data.ts",
+      "src/db/verify-m1.ts",
+      "src/db/migrations/0000_lucky_stick.sql",
+      "src/repositories/route.repo.ts",
+      "src/repositories/property.repo.ts",
+      "src/repositories/occupant.repo.ts",
+      "src/repositories/collection-event.repo.ts",
+      "src/repositories/handover.repo.ts",
+      "src/repositories/payment.repo.ts",
+      "src/repositories/grievance.repo.ts",
+      "src/schemas/route.schema.ts",
+      "src/schemas/property.schema.ts",
+      "src/schemas/occupant.schema.ts",
+      "src/schemas/collection-event.schema.ts",
+      "src/schemas/handover.schema.ts",
+      "src/schemas/payment.schema.ts",
+      "src/schemas/grievance.schema.ts",
+    ],
+    fileAssertions: [
+      {
+        file: "src/db/schema.ts",
+        description: "All seven M1 entities are declared",
+        verify: (content) =>
+          [
+            "routes",
+            "properties",
+            "occupants",
+            "collectionEvents",
+            "handoverLogs",
+            "payments",
+            "grievances",
+          ].every((entity) => content.includes(`export const ${entity} = pgTable`)),
+      },
+      {
+        file: "src/db/migrations/0000_lucky_stick.sql",
+        description: "Generated migration creates all seven tables",
+        verify: (content) =>
+          [
+            "routes",
+            "properties",
+            "occupants",
+            "collection_events",
+            "handover_logs",
+            "payments",
+            "grievances",
+          ].every((table) => content.includes(`CREATE TABLE \"${table}\"`)),
+      },
+    ],
+    commands: [
+      { label: "Lint", command: "npm", args: ["run", "lint"] },
+      { label: "Strict type check", command: "npm", args: ["run", "typecheck"] },
+      { label: "Repository, schema, and seed tests", command: "npm", args: ["run", "test"] },
+      { label: "Production build", command: "npm", args: ["run", "build"] },
+      { label: "Migration drift check", command: "npm", args: ["run", "db:generate"] },
+      { label: "Live development database verification", command: "npm", args: ["run", "db:verify:m1"] },
+      {
+        label: "Production dependency audit",
+        command: "npm",
+        args: ["audit", "--omit=dev", "--audit-level=high"],
+      },
+    ],
+    migrationDirectoryMustBeClean: true,
+    smokeTest: false,
+  },
 };
 
 function record(checks, label, status, detail) {
@@ -173,6 +241,19 @@ async function main() {
 
     for (const command of suite.commands) {
       runCommand(checks, command);
+    }
+
+    if (suite.migrationDirectoryMustBeClean) {
+      const migrationStatus = spawnSync(
+        "git",
+        ["status", "--porcelain", "--", "src/db/migrations"],
+        { cwd: projectRoot, encoding: "utf8" },
+      ).stdout.trim();
+      if (migrationStatus) {
+        record(checks, "Migration files match the committed schema", "failed", migrationStatus);
+        throw new Error("Migration drift was detected.");
+      }
+      record(checks, "Migration files match the committed schema", "passed", "no drift");
     }
 
     if (suite.smokeTest) {

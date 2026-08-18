@@ -16,8 +16,11 @@
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
     "verify:milestone": "node scripts/verify-milestone.mjs",
     "verify:m0": "node scripts/verify-milestone.mjs M0",
+    "verify:m1": "node scripts/verify-milestone.mjs M1",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed": "tsx src/db/seed.ts",
+    "db:verify:m1": "tsx src/db/verify-m1.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
@@ -35,12 +38,14 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "autoprefixer": "^10.4.21",
+    "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.8",
     "eslint": "^9.39.1",
     "eslint-config-next": "16.3.1",
     "jsdom": "^27.2.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
+    "tsx": "^4.23.12",
     "typescript": "^5.9.3",
     "vitest": "^4.1.0"
   }

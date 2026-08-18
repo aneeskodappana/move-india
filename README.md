@@ -31,6 +31,7 @@ Milestones also have a promotion gate. A milestone must pass its verifier before
 
 ```sh
 npm run verify:m0
+npm run verify:m1
 ```
 
 See [the milestone verification flow](docs/milestone-verification.md) for the verifier contract and current gate status.
@@ -40,7 +41,11 @@ Run database commands only after configuring a synthetic development database:
 ```sh
 npm run db:generate
 npm run db:migrate
+npm run db:seed
+npm run db:verify:m1
 ```
+
+The M1 seed is deterministic and idempotent. It contains only invented addresses, synthetic phone numbers in the `+91-00000-00000` range, independent `VN-EKM` QR identifiers, and a deliberate missing-collector record for the proof-pack demo.
 
 ## Source documents
 
