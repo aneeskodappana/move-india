@@ -27,6 +27,14 @@ Run the complete foundation gate with:
 npm run check
 ```
 
+Milestones also have a promotion gate. A milestone must pass its verifier before work starts on the next one:
+
+```sh
+npm run verify:m0
+```
+
+See [the milestone verification flow](docs/milestone-verification.md) for the verifier contract and current gate status.
+
 Run database commands only after configuring a synthetic development database:
 
 ```sh
