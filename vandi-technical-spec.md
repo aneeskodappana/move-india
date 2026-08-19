@@ -289,9 +289,9 @@ Update the **Status** column as you go — this table *is* your progress tracker
 
 | # | Milestone | Target date | Status | Definition of done |
 |---|---|---|---|---|
-| M0 | Setup & scaffold | Tue Aug 18 | Not started | Hackathon registration submitted. Codex-built Next.js + TS(strict) + Tailwind + Drizzle + Vitest scaffold. `lint`, `test`, `build` all green. Repo pushed. |
-| M1 | Data layer | Wed Aug 19 | Not started | Drizzle schema for all §4 entities, migrated to dev Postgres. Repository layer (one file per entity, §8.1). zod schemas for every entity's input shape. Repository unit tests passing. |
-| M2 | Auth & registration | Thu Aug 20 | Not started | Dev-OTP auth with secure session cookie. Sign-up + Join-a-property screens working end to end. Auth/occupant service unit tests passing. Rate-limit stub on OTP endpoint. |
+| M0 | Setup & scaffold | Tue Aug 18 | Done | Hackathon registration submitted. Codex-built Next.js + TS(strict) + Tailwind + Drizzle + Vitest scaffold. `lint`, `test`, `build` all green. Repo pushed. |
+| M1 | Data layer | Wed Aug 19 | Done | Drizzle schema for all §4 entities, migrated to dev Postgres. Repository layer (one file per entity, §8.1). zod schemas for every entity's input shape. Repository unit tests passing. |
+| M2 | Auth & registration | Thu Aug 20 | Done | Dev-OTP auth with secure session cookie. Sign-up + Join-a-property screens working end to end. Auth/occupant service unit tests passing. Rate-limit stub on OTP endpoint. |
 | M3 | Broadcast engine | Fri Aug 21 | Not started | Route/collection-event data wired to UI. Home/Today screen shows correct material + window for a given property. Broadcast simulator renders app/SMS/WhatsApp previews from one message. Component tests passing. |
 | M4 | Handover confirmation | Sat–Sun Aug 22–23 | Not started | Two-sided handover log (resident "kept out" / collector "collected") working against real data. **Authorization test:** an occupant cannot mark handover for a property they're not registered to. Primary journey (§2) runs start to finish on seeded data. |
 | M5 | Payments & history | Mon Aug 24 | Not started | Payment ledger + mock UPI flow + receipt generation. History screen combines handover + payment logs, filterable, exportable. Payment service unit tests passing. |
