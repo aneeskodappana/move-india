@@ -5,6 +5,7 @@ export function getAuthConfig() {
   }
 
   return {
+    devCollectorCode: process.env.DEV_COLLECTOR_CODE ?? "654321",
     devOtpCode: process.env.DEV_OTP_CODE ?? "123456",
     sessionSecret,
   };

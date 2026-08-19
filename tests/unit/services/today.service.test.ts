@@ -42,6 +42,7 @@ describe("TodayService", () => {
     const service = createTodayService({
       broadcasts: { composeScheduleMessage },
       collectionEvents: { findByPropertyAndDate: vi.fn().mockResolvedValue(event) },
+      handovers: { findByOccupantAndEvent: vi.fn().mockResolvedValue(null) },
       properties: { findById: vi.fn().mockResolvedValue(property) },
       routes: { findById: vi.fn().mockResolvedValue(route) },
     });
@@ -64,6 +65,7 @@ describe("TodayService", () => {
     const service = createTodayService({
       broadcasts: { composeScheduleMessage: vi.fn() },
       collectionEvents: { findByPropertyAndDate: vi.fn() },
+      handovers: { findByOccupantAndEvent: vi.fn() },
       properties: { findById: vi.fn() },
       routes: { findById: vi.fn() },
     });

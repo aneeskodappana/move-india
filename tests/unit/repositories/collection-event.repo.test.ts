@@ -45,4 +45,19 @@ describe("CollectionEventRepository", () => {
     ).resolves.toEqual(expected);
     expect(harness.limit).toHaveBeenCalledWith(1);
   });
+
+  it("finds an event by id", async () => {
+    const expected: CollectionEvent = {
+      id: "40000000-0000-4000-8000-000000000002",
+      routeId: "10000000-0000-4000-8000-000000000001",
+      propertyId: "20000000-0000-4000-8000-000000000001",
+      eventDate: "2026-08-19",
+      materialType: "Food waste",
+      timeWindow: "7:00–8:30 AM",
+      status: "scheduled",
+    };
+    const harness = createSelectOneHarness([expected]);
+    await expect(createCollectionEventRepository(harness.database).findById(expected.id)).resolves.toEqual(expected);
+    expect(harness.limit).toHaveBeenCalledWith(1);
+  });
 });

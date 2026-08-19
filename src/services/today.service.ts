@@ -1,13 +1,16 @@
 import { AppError } from "@/lib/app-error";
 import type { Session } from "@/lib/session";
 import type { CollectionEventRepository } from "@/repositories/collection-event.repo";
+import type { HandoverRepository } from "@/repositories/handover.repo";
 import type { PropertyRepository } from "@/repositories/property.repo";
 import type { RouteRepository } from "@/repositories/route.repo";
 import type { BroadcastService } from "@/services/broadcast.service";
+import { serializeHandover } from "@/services/handover.service";
 
 type TodayServiceDependencies = {
   broadcasts: Pick<BroadcastService, "composeScheduleMessage">;
   collectionEvents: Pick<CollectionEventRepository, "findByPropertyAndDate">;
+  handovers: Pick<HandoverRepository, "findByOccupantAndEvent">;
   properties: Pick<PropertyRepository, "findById">;
   routes: Pick<RouteRepository, "findById">;
 };
@@ -36,6 +39,12 @@ export function createTodayService(dependencies: TodayServiceDependencies) {
             status: collectionEvent.status,
           }
         : null;
+      const handover = collectionEvent
+        ? await dependencies.handovers.findByOccupantAndEvent(
+            session.occupantId,
+            collectionEvent.id,
+          )
+        : null;
       const message = dependencies.broadcasts.composeScheduleMessage({
         address: property.addressLine,
         date,
@@ -53,6 +62,7 @@ export function createTodayService(dependencies: TodayServiceDependencies) {
         },
         route: { id: route.id, name: route.name },
         collection,
+        handover: handover ? serializeHandover(handover) : null,
         message,
       };
     },

@@ -1,4 +1,5 @@
 export * from "@/schemas/collection-event.schema";
+export * from "@/schemas/coordinator.schema";
 export * from "@/schemas/auth.schema";
 export * from "@/schemas/grievance.schema";
 export * from "@/schemas/handover.schema";

@@ -244,6 +244,63 @@ const suites = {
     smokeTest: false,
     todayBroadcastSmokeTest: true,
   },
+  M4: {
+    requiredFiles: [
+      "src/lib/collector-session.ts",
+      "src/services/handover.service.ts",
+      "src/services/collector-auth.service.ts",
+      "src/app/api/handovers/kept-out/route.ts",
+      "src/app/api/handovers/collected/route.ts",
+      "src/app/api/coordinator/session/route.ts",
+      "src/app/home/handover-controller.tsx",
+      "src/app/coordinator/page.tsx",
+      "src/components/handover/resident-handover-card.tsx",
+      "src/components/coordinator/collector-queue.tsx",
+      "tests/unit/services/handover.service.test.ts",
+      "tests/unit/lib/collector-session.test.ts",
+      "tests/unit/components/handover-components.test.tsx",
+    ],
+    fileAssertions: [
+      {
+        file: "tests/unit/services/handover.service.test.ts",
+        description: "Critical cross-property authorization denial is covered",
+        verify: (content) =>
+          content.includes("blocks Anjali from marking Ravi's or any other property") &&
+          content.includes('code: "forbidden"') &&
+          content.includes("create).not.toHaveBeenCalled"),
+      },
+      {
+        file: "src/services/handover.service.ts",
+        description: "Resident ownership is checked before handover mutation",
+        verify: (content) =>
+          content.includes("event.propertyId !== resident.propertyId") &&
+          content.indexOf("event.propertyId !== resident.propertyId") < content.indexOf("handovers.create"),
+      },
+      {
+        file: "src/app/api/handovers/collected/route.ts",
+        description: "Collector mutation requires its distinct signed actor",
+        verify: (content) =>
+          content.includes("requireRequestCollector") &&
+          content.includes("services.handovers.confirmCollected"),
+      },
+      {
+        file: "src/components/coordinator/collector-queue.tsx",
+        description: "Collector screen is unmistakably marked as a DEV simulation",
+        verify: (content) => content.includes("DEV collector mode") && content.includes("Mark collected"),
+      },
+    ],
+    commands: [
+      { label: "Lint", command: "npm", args: ["run", "lint"] },
+      { label: "Strict type check", command: "npm", args: ["run", "typecheck"] },
+      { label: "Handover authorization, service, repository, and regression tests", command: "npm", args: ["run", "test"] },
+      { label: "Production build", command: "npm", args: ["run", "build"] },
+      { label: "Live development database regression verification", command: "npm", args: ["run", "db:verify:m1"] },
+      { label: "Production dependency audit", command: "npm", args: ["audit", "--omit=dev", "--audit-level=high"] },
+    ],
+    migrationDirectoryMustBeClean: true,
+    smokeTest: false,
+    handoverSmokeTest: true,
+  },
 };
 
 function record(checks, label, status, detail) {
@@ -519,6 +576,162 @@ async function runTodayBroadcastSmokeTest(checks) {
   }
 }
 
+async function runHandoverSmokeTest(checks) {
+  const port = 3196;
+  const origin = `http://127.0.0.1:${port}`;
+  const serverOutput = [];
+  const server = spawn(
+    process.execPath,
+    [path.join(projectRoot, "node_modules/next/dist/bin/next"), "start", "-p", String(port)],
+    { cwd: projectRoot, env: { ...process.env, PORT: String(port) }, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  server.stdout.on("data", (chunk) => serverOutput.push(chunk.toString()));
+  server.stderr.on("data", (chunk) => serverOutput.push(chunk.toString()));
+
+  try {
+    let ready = false;
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      try {
+        const response = await fetch(`${origin}/sign-up`, { redirect: "manual" });
+        if (response.ok) { ready = true; break; }
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+    }
+    if (!ready) throw new Error(`M4 production server did not become ready. ${serverOutput.join("")}`);
+
+    const anjaliOtp = await fetch(`${origin}/api/auth/request-otp`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phone: "+91-00000-00002" }),
+    }).then((response) => response.json());
+    const anjaliResponse = await fetch(`${origin}/api/auth/verify-otp`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phone: "+91-00000-00002", name: "Anjali Nair", otp: anjaliOtp.devOtp }),
+    });
+    const anjaliCookie = (anjaliResponse.headers.get("set-cookie") ?? "").split(";")[0];
+    const anjaliToday = await fetch(`${origin}/api/today`, { headers: { cookie: anjaliCookie } }).then((response) => response.json());
+    if (!anjaliToday.today?.collection?.id || !anjaliToday.today?.property?.id) {
+      throw new Error("Could not resolve the seeded cross-property authorization fixture.");
+    }
+
+    let verifiedCookie;
+    let verifiedPhone;
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      const suffix = String((Date.now() + process.pid + attempt) % 100_000).padStart(5, "0");
+      const phone = `+91-00000-${suffix}`;
+      const otpResponse = await fetch(`${origin}/api/auth/request-otp`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const otpBody = await otpResponse.json();
+      const verifyResponse = await fetch(`${origin}/api/auth/verify-otp`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone, name: "M4 Journey Verifier", otp: otpBody.devOtp }),
+      });
+      const verifyBody = await verifyResponse.json();
+      if (verifyBody.next === "/join-property") {
+        verifiedCookie = (verifyResponse.headers.get("set-cookie") ?? "").split(";")[0];
+        verifiedPhone = phone;
+        break;
+      }
+    }
+    if (!verifiedCookie || !verifiedPhone) throw new Error("Could not allocate an unused synthetic M4 phone.");
+
+    const propertiesResponse = await fetch(`${origin}/api/properties`, { headers: { cookie: verifiedCookie } });
+    const propertiesBody = await propertiesResponse.json();
+    const property = propertiesBody.properties?.find((candidate) => candidate.id !== anjaliToday.today.property.id);
+    if (!property?.id) throw new Error("Could not find a second synthetic property for M4 authorization verification.");
+
+    const registerResponse = await fetch(`${origin}/api/occupants/register`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: verifiedCookie },
+      body: JSON.stringify({ propertyId: property.id, role: "tenant", moveInDate: "2026-08-01" }),
+    });
+    const registeredCookie = (registerResponse.headers.get("set-cookie") ?? "").split(";")[0];
+    if (registerResponse.status !== 201 || !registeredCookie) throw new Error("M4 synthetic resident registration failed.");
+
+    const todayResponse = await fetch(`${origin}/api/today`, { headers: { cookie: registeredCookie } });
+    const todayBody = await todayResponse.json();
+    if (!todayResponse.ok || !todayBody.today?.collection?.id) throw new Error("M4 resident has no live collection event.");
+
+    const forbiddenResponse = await fetch(`${origin}/api/handovers/kept-out`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: registeredCookie },
+      body: JSON.stringify({ collectionEventId: anjaliToday.today.collection.id }),
+    });
+    const forbiddenBody = await forbiddenResponse.json();
+    if (forbiddenResponse.status !== 403 || forbiddenBody.error?.code !== "forbidden") {
+      throw new Error("Cross-property resident handover mutation was not denied.");
+    }
+
+    const keptOutResponse = await fetch(`${origin}/api/handovers/kept-out`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: registeredCookie },
+      body: JSON.stringify({ collectionEventId: todayBody.today.collection.id }),
+    });
+    const keptOutBody = await keptOutResponse.json();
+    if (!keptOutResponse.ok || keptOutBody.handover?.status !== "kept_out" || !keptOutBody.handover?.residentMarkedAt) {
+      throw new Error("Resident kept-out timestamp was not persisted.");
+    }
+
+    const collectorResponse = await fetch(`${origin}/api/coordinator/session`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ code: process.env.DEV_COLLECTOR_CODE ?? "654321" }),
+    });
+    const collectorSetCookie = collectorResponse.headers.get("set-cookie") ?? "";
+    const collectorCookie = collectorSetCookie.split(";")[0];
+    if (!collectorResponse.ok || !collectorCookie || !/HttpOnly/i.test(collectorSetCookie)) {
+      throw new Error("Distinct signed collector session was not issued securely.");
+    }
+
+    const queueResponse = await fetch(`${origin}/coordinator`, { headers: { cookie: collectorCookie } });
+    const queueHtml = await queueResponse.text();
+    if (!queueResponse.ok || !queueHtml.includes(property.addressLine) || !queueHtml.includes("DEV collector mode")) {
+      throw new Error("Collector queue did not render the resident-marked handover.");
+    }
+
+    const collectedResponse = await fetch(`${origin}/api/handovers/collected`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: collectorCookie },
+      body: JSON.stringify({ handoverLogId: keptOutBody.handover.id }),
+    });
+    const collectedBody = await collectedResponse.json();
+    if (!collectedResponse.ok || collectedBody.handover?.status !== "collected" || !collectedBody.handover?.collectorMarkedAt) {
+      throw new Error("Collector timestamp was not persisted independently.");
+    }
+
+    const completedTodayResponse = await fetch(`${origin}/api/today`, { headers: { cookie: registeredCookie } });
+    const completedToday = await completedTodayResponse.json();
+    if (
+      completedToday.today?.handover?.status !== "collected" ||
+      !completedToday.today?.handover?.residentMarkedAt ||
+      !completedToday.today?.handover?.collectorMarkedAt
+    ) {
+      throw new Error("Resident Today did not return the completed two-sided proof record.");
+    }
+
+    const homeResponse = await fetch(`${origin}/home`, { headers: { cookie: registeredCookie } });
+    const homeHtml = await homeResponse.text();
+    if (!homeResponse.ok || !homeHtml.includes("Proof record complete")) {
+      throw new Error("Resident home did not render the completed two-sided proof record.");
+    }
+
+    record(
+      checks,
+      "Live two-sided handover HTTP journey",
+      "passed",
+      "cross-property denial → resident timestamp → separate collector session + timestamp → completed proof",
+    );
+  } finally {
+    server.kill("SIGTERM");
+  }
+}
+
 async function main() {
   if (!milestone || !(milestone in suites)) {
     const available = Object.keys(suites).join(", ");
@@ -581,6 +794,9 @@ async function main() {
     }
     if (suite.todayBroadcastSmokeTest) {
       await runTodayBroadcastSmokeTest(checks);
+    }
+    if (suite.handoverSmokeTest) {
+      await runHandoverSmokeTest(checks);
     }
   } catch (error) {
     status = "failed";

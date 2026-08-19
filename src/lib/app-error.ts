@@ -1,6 +1,7 @@
 export type AppErrorCode =
   | "invalid_request"
   | "invalid_otp"
+  | "invalid_code"
   | "rate_limited"
   | "unauthorized"
   | "forbidden"

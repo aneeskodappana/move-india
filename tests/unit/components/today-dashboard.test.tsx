@@ -20,6 +20,7 @@ const today: TodayView = {
     timeWindow: "7:00–8:30 AM",
     status: "scheduled",
   },
+  handover: null,
   message: "Canonical Vandi collection message.",
 };
 

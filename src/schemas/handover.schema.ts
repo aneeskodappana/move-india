@@ -20,3 +20,15 @@ export const createHandoverLogInputSchema = z
   );
 
 export type CreateHandoverLogInput = z.infer<typeof createHandoverLogInputSchema>;
+
+export const markKeptOutInputSchema = z.object({
+  collectionEventId: uuidSchema,
+  photoUrl: z.string().url().optional(),
+});
+
+export const confirmCollectedInputSchema = z.object({
+  handoverLogId: uuidSchema,
+});
+
+export type MarkKeptOutInput = z.infer<typeof markKeptOutInputSchema>;
+export type ConfirmCollectedInput = z.infer<typeof confirmCollectedInputSchema>;

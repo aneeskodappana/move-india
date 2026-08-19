@@ -29,6 +29,12 @@ export function createCollectionEventRepository(database: DatabaseClient) {
       );
       return rows[0] ?? null;
     },
+    async findById(id: string): Promise<CollectionEvent | null> {
+      const rows = await withDatabaseRetry("Collection-event id lookup", () =>
+        database.select().from(collectionEvents).where(eq(collectionEvents.id, id)).limit(1),
+      );
+      return rows[0] ?? null;
+    },
   };
 }
 

@@ -1,10 +1,10 @@
 import { BroadcastSimulator } from "@/components/broadcast/broadcast-simulator";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatScheduleDate } from "@/lib/india-date";
 import type { TodayView } from "@/services/today.service";
+import type { ReactNode } from "react";
 
-export function TodayDashboard({ today }: { today: TodayView }) {
+export function TodayDashboard({ today, handoverControl }: { today: TodayView; handoverControl?: ReactNode }) {
   return (
     <main className="min-h-screen bg-canvas px-5 py-6 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-6xl">
@@ -46,12 +46,7 @@ export function TodayDashboard({ today }: { today: TodayView }) {
           </div>
 
           <div className="space-y-6">
-            <Card className="p-6">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-forest-600">Handover record</p>
-              <h2 className="mt-2 text-2xl font-black text-forest-950">Ready when you are.</h2>
-              <p className="mt-3 text-sm leading-6 text-stone-700">The two-sided “Kept out” proof action arrives in M4. Today’s schedule is already live from Neon.</p>
-              <Button className="mt-6 w-full" disabled>Kept out · coming in M4</Button>
-            </Card>
+            {handoverControl ?? <Card className="p-6"><p className="text-sm font-bold text-stone-700">No handover action is available today.</p></Card>}
             <aside className="rounded-control border border-marigold-300 bg-marigold-100 p-4 text-sm leading-6 text-forest-950">
               <strong>Prototype disclosure:</strong> channel delivery is simulated. No SMS or WhatsApp message is actually sent.
             </aside>
