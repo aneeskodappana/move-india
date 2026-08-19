@@ -15,7 +15,7 @@ describe("M4 handover components", () => {
     render(<ResidentHandoverCard {...baseProps} handover={null} />);
     fireEvent.click(screen.getByRole("button", { name: "Mark kept out now" }));
     expect(baseProps.onMarkKeptOut).toHaveBeenCalled();
-    expect(screen.getByLabelText("Optional proof photo URL")).toBeInTheDocument();
+    expect(screen.getByLabelText("Optional photo link")).toBeInTheDocument();
   });
 
   it("shows both timestamps when the two-sided record is complete", () => {

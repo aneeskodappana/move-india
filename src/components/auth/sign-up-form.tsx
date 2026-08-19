@@ -28,11 +28,11 @@ export function SignUpForm(props: SignUpFormProps) {
       {!props.requested ? (
         <form className="mt-6 space-y-5" onSubmit={props.onRequestOtp}>
           <label className="block text-sm font-bold text-forest-950">
-            Synthetic phone number
+            Mobile number
             <input aria-describedby="phone-help" className={inputClass} onChange={(event) => props.onPhoneChange(event.target.value)} placeholder="+91-00000-12345" required value={props.phone} />
           </label>
-          <p className="text-xs leading-5 text-stone-700" id="phone-help">Use only the clearly non-real demo range +91-00000-XXXXX.</p>
-          <Button className="w-full" disabled={props.busy} type="submit">{props.busy ? "Requesting…" : "Request DEV OTP"}</Button>
+          <p className="text-xs leading-5 text-stone-700" id="phone-help">Use a number in the +91-00000-XXXXX range.</p>
+          <Button className="w-full" disabled={props.busy} type="submit">{props.busy ? "Sending code…" : "Send sign-in code"}</Button>
         </form>
       ) : (
         <form className="mt-6 space-y-5" onSubmit={props.onVerify}>
@@ -41,7 +41,7 @@ export function SignUpForm(props: SignUpFormProps) {
             <input autoComplete="name" className={inputClass} onChange={(event) => props.onNameChange(event.target.value)} required value={props.name} />
           </label>
           <label className="block text-sm font-bold text-forest-950">
-            Six-digit DEV OTP
+            Six-digit code
             <input className={inputClass} inputMode="numeric" maxLength={6} onChange={(event) => props.onOtpChange(event.target.value)} required value={props.otp} />
           </label>
           <div className="grid gap-3 sm:grid-cols-2">

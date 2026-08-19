@@ -1,41 +1,65 @@
-export type FoundationGate = {
-  label: string;
-  command: string;
-  status: "ready" | "queued";
-};
-
 export type JourneyStep = {
   title: string;
   description: string;
 };
 
+export type SamplePickup = {
+  material: string;
+  timeWindow: string;
+  ward: string;
+  route: string;
+};
+
+export type ServiceHighlight = {
+  title: string;
+  description: string;
+};
+
 export type AppFoundation = {
-  gates: readonly FoundationGate[];
+  serviceArea: readonly string[];
+  samplePickup: SamplePickup;
+  highlights: readonly ServiceHighlight[];
   journey: readonly JourneyStep[];
 };
 
 export const appFoundation: AppFoundation = {
-  gates: [
-    { label: "Strict types", command: "typecheck", status: "ready" },
-    { label: "Unit tests", command: "test", status: "ready" },
-    { label: "Production build", command: "build", status: "ready" },
+  serviceArea: ["Elamkulam", "Kadavanthra", "Panampilly Nagar", "Thevara"],
+  samplePickup: {
+    material: "Food waste",
+    timeWindow: "7:00–8:30 AM",
+    ward: "Elamkulam",
+    route: "Elamkulam North",
+  },
+  highlights: [
+    {
+      title: "Segregate for the day",
+      description: "Food waste, plastic, or glass — shown before the vehicle arrives, so the right bag goes out.",
+    },
+    {
+      title: "Handover at the kerb",
+      description: "You mark waste kept out. The collector confirms collected. Two times stay on one address.",
+    },
+    {
+      title: "Records that follow you",
+      description: "Proof and receipts stay with the person who lives there, even in a shared building.",
+    },
   ],
   journey: [
     {
       title: "Join your address",
-      description: "Register as the current owner or tenant without replacing the property record.",
+      description: "Register as the owner or tenant who lives there now.",
     },
     {
       title: "See today’s pickup",
-      description: "Read one material and time-window message across app, SMS, and WhatsApp previews.",
+      description: "The material and time window appear on your home screen before the vehicle arrives.",
     },
     {
       title: "Confirm handover",
-      description: "Pair the resident’s kept-out time with the collector’s collected time.",
+      description: "You mark waste kept out. The collector confirms collected as a separate time.",
     },
     {
-      title: "Keep your proof",
-      description: "Review collection history, payment status, and digital receipts in one place.",
+      title: "Keep your records",
+      description: "Open history, payments, and receipts whenever you need them.",
     },
   ],
 };

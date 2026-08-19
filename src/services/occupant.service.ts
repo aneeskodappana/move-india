@@ -20,7 +20,7 @@ export function createOccupantService(dependencies: OccupantServiceDependencies)
         dependencies.properties.findById(input.propertyId),
         dependencies.occupants.findByPhone(session.phone),
       ]);
-      if (!property) throw new AppError("not_found", "That demo property was not found.", 404);
+      if (!property) throw new AppError("not_found", "That address was not found.", 404);
       if (existingOccupant) {
         throw new AppError("conflict", "This phone is already registered.", 409);
       }

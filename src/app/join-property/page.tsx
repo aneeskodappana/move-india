@@ -11,7 +11,7 @@ export default async function JoinPropertyPage() {
   const properties = await createApplicationServices().properties.listJoinOptions();
 
   return (
-    <AuthShell description="Pick an invented address, confirm who is already registered there, and link your verified occupant identity." eyebrow="Step 2 of 2" title={`Welcome, ${session.name}. Join your property.`}>
+    <AuthShell description="Choose your building, see who already lives there, and attach your account to that address." eyebrow="Join your building" title={`Welcome, ${session.name}. Add your address.`}>
       <JoinPropertyController initialProperties={properties} />
     </AuthShell>
   );

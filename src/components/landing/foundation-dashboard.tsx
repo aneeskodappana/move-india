@@ -1,7 +1,7 @@
 import Link from "next/link";
+import { CollectionMark } from "@/components/landing/collection-mark";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { StatusPill } from "@/components/ui/status-pill";
 import type { AppFoundation } from "@/lib/app-foundation";
 
 type FoundationDashboardProps = {
@@ -24,59 +24,107 @@ export function FoundationDashboard({ foundation }: FoundationDashboardProps) {
             </span>
             <div>
               <p className="text-lg font-black tracking-tight text-forest-950">Vandi</p>
-              <p className="text-xs font-medium text-stone-700">Resident records, made visible</p>
+              <p className="text-xs font-medium text-stone-700">Collection records for Kochi</p>
             </div>
           </div>
-          <Badge tone="marigold">Independent hackathon prototype</Badge>
+          <nav className="flex flex-wrap items-center gap-3">
+            <Link className="text-sm font-black text-forest-900" href="/coordinator">
+              Collector sign-in
+            </Link>
+            <Link className="inline-flex min-h-11 items-center rounded-control bg-forest-900 px-4 text-sm font-black text-white" href="/sign-up">
+              Resident sign-in
+            </Link>
+          </nav>
         </header>
 
-        <section className="grid items-end gap-10 py-14 lg:grid-cols-12 lg:py-20">
+        <section className="grid items-start gap-10 py-12 lg:grid-cols-12 lg:py-16">
           <div className="lg:col-span-8">
-            <Badge tone="forest">Independent civic-utility prototype</Badge>
+            <Badge tone="forest">Kochi collection service</Badge>
             <h1 className="mt-6 max-w-4xl break-words text-4xl font-black leading-none tracking-tight text-forest-950 sm:text-6xl lg:text-7xl">
-              Know what is collected. Prove you handed it over.
+              Today’s pickup, recorded in your name.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-stone-700 sm:text-xl">
-              Vandi is an occupant-first layer for daily collection schedules, two-sided handover
-              records, and personal payment receipts—designed around the person who actually lives
-              at the address.
+              Waste management starts at the doorstep: the right material, on the right morning,
+              handed to the collector. Vandi keeps that record in your name — even if you are a
+              tenant, not the property owner.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link className="inline-flex min-h-12 items-center justify-center rounded-control bg-forest-900 px-5 text-sm font-black text-white" href="/sign-up">
-                Open resident demo
+                Sign in as a resident
               </Link>
               <Link className="inline-flex min-h-12 items-center justify-center rounded-control border border-forest-200 bg-paper px-5 text-sm font-black text-forest-900" href="/coordinator">
-                Open collector demo
+                Collector sign-in
               </Link>
             </div>
           </div>
 
-          <Card className="p-6 lg:col-span-4">
-            <p className="text-xs font-bold uppercase tracking-widest text-forest-600">Build status</p>
-            <div className="mt-5 space-y-4">
-              {foundation.gates.map((gate) => (
-                <div
-                  className="flex items-center justify-between gap-4 border-b border-stone-100 pb-4 last:border-0 last:pb-0"
-                  key={gate.label}
-                >
-                  <StatusPill label={gate.label} status={gate.status} />
-                  <span className="font-mono text-xs text-stone-500">{gate.command}</span>
+          <div className="lg:col-span-4">
+            <div className="overflow-hidden rounded-card border border-forest-200 bg-paper shadow-card">
+              <div className="bg-forest-50 px-5 pb-3 pt-5">
+                <CollectionMark className="mx-auto h-auto w-full max-w-[220px]" />
+                <p className="mt-1 text-center text-xs font-bold uppercase tracking-widest text-forest-600">
+                  Bin out · vehicle on the route
+                </p>
+              </div>
+              <div className="bg-forest-950 p-6 text-white">
+                <p className="text-xs font-bold uppercase tracking-widest text-forest-200">This morning on your route</p>
+                <p className="mt-5 text-sm font-bold uppercase tracking-[0.18em] text-marigold-300">Put out today</p>
+                <p className="mt-3 text-4xl font-black leading-none tracking-tight">{foundation.samplePickup.material}</p>
+                <div className="mt-6 border-t border-forest-700 pt-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-forest-200">Collection window</p>
+                  <p className="mt-2 text-2xl font-black text-marigold-300">{foundation.samplePickup.timeWindow}</p>
                 </div>
-              ))}
+              </div>
+              <div className="border-t border-forest-800 bg-forest-900 p-5 text-white">
+                <p className="text-sm font-bold">{foundation.samplePickup.ward}</p>
+                <p className="mt-1 text-xs text-forest-200">{foundation.samplePickup.route}</p>
+              </div>
             </div>
-          </Card>
+            <p className="mt-4 text-sm leading-6 text-stone-700">
+              You mark waste kept out. The collector confirms pickup separately, so both times stay on your record.
+            </p>
+          </div>
         </section>
 
-        <section aria-labelledby="journey-heading" className="pb-12 lg:pb-20">
+        <section aria-label="Areas served" className="border-y border-forest-200 py-5">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+            <p className="text-xs font-black uppercase tracking-widest text-forest-600">Serving</p>
+            {foundation.serviceArea.map((ward) => (
+              <p className="text-sm font-bold text-forest-950" key={ward}>{ward}</p>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="waste-heading" className="py-12 lg:pt-16 lg:pb-4">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-widest text-forest-600">Waste management</p>
+            <h2 id="waste-heading" className="mt-2 text-3xl font-black tracking-tight text-forest-950">
+              Cleaner streets start with a clearer doorstep.
+            </h2>
+            <p className="mt-4 text-base leading-7 text-stone-700">
+              The vehicle only helps if the right waste is out, and someone can show it was handed over. Vandi keeps that trail for the person who lives there.
+            </p>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {foundation.highlights.map((highlight) => (
+              <Card className="h-full p-6" key={highlight.title}>
+                <h3 className="text-xl font-black text-forest-950">{highlight.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-stone-700">{highlight.description}</p>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="journey-heading" className="py-12 lg:py-20">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-bold uppercase tracking-widest text-forest-600">Primary journey</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-forest-600">How it works</p>
               <h2 id="journey-heading" className="mt-2 text-3xl font-black tracking-tight text-forest-950">
-                One clear record from signup to receipt
+                One record from sign-in to receipt
               </h2>
             </div>
             <p className="max-w-md text-sm leading-6 text-stone-700">
-              The live demo runs on synthetic Kochi data from signup through the printable proof pack.
+              Built for shared buildings in Kochi, where the person who puts waste out is often not the owner on the household record.
             </p>
           </div>
 
@@ -94,8 +142,8 @@ export function FoundationDashboard({ foundation }: FoundationDashboardProps) {
         </section>
 
         <footer className="flex flex-col gap-3 border-t border-forest-200 py-6 text-xs leading-5 text-stone-700 sm:flex-row sm:items-center sm:justify-between">
-          <p>No live government systems, telecom delivery, payments, or personal data.</p>
-          <p>Synthetic Kochi demo data only.</p>
+          <p>Independent collection records for Kochi residents. Not a government service.</p>
+          <p>SMS, WhatsApp, and UPI shown in the app are previews only.</p>
         </footer>
       </div>
     </main>

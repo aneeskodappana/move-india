@@ -118,9 +118,9 @@ async function moveAndClick(locator) {
 }
 
 await page.goto(`${origin}/`, { waitUntil: "domcontentloaded" });
-await page.getByRole("heading", { name: /Know what is collected/i }).waitFor();
+await page.getByRole("heading", { name: /Today’s pickup, recorded in your name/i }).waitFor();
 await pause(5000);
-await moveAndClick(page.getByRole("link", { name: "Open collector demo" }));
+await moveAndClick(page.getByRole("link", { name: "Collector sign-in" }).first());
 
 await page.getByRole("heading", { name: "Collector confirmation" }).waitFor();
 await page.getByText("DEV collector mode").waitFor();
@@ -130,7 +130,7 @@ await moveAndClick(code);
 await code.fill("");
 await page.keyboard.type("654321", { delay: 160 });
 await pause(800);
-await moveAndClick(page.getByRole("button", { name: "Open collector queue" }));
+await moveAndClick(page.getByRole("button", { name: "Open today’s queue" }));
 
 await page.getByRole("heading", { name: "Pickup confirmations" }).waitFor();
 await page.getByRole("button", { name: "Mark collected" }).first().waitFor({ timeout: 15_000 });

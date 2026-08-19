@@ -8,7 +8,7 @@ export default function HistoryError({ reset }: { error: Error & { digest?: stri
       <div className="max-w-md">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-forest-600">Temporary connection issue</p>
         <h1 className="mt-3 text-4xl font-black text-forest-950">The proof pack couldn’t load.</h1>
-        <p className="mt-4 leading-7 text-stone-700">The synthetic database may be waking up. Retry the read without losing your session.</p>
+        <p className="mt-4 leading-7 text-stone-700">Please try again. Your sign-in is still saved.</p>
         <Button className="mt-6" onClick={reset}>Retry proof pack</Button>
       </div>
     </main>

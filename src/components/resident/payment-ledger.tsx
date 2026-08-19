@@ -50,7 +50,7 @@ export function PaymentLedger({
                 </Link>
               ) : (
                 <Button className="w-full" disabled={busy} onClick={onPay}>
-                  {busy ? "Recording mock payment…" : `Pay ₹${ledger.current.amountInr}`}
+                  {busy ? "Recording payment…" : `Pay ₹${ledger.current.amountInr}`}
                 </Button>
               )}
               {message ? <p aria-live="polite" className="text-sm font-bold text-forest-700">{message}</p> : null}
@@ -59,7 +59,7 @@ export function PaymentLedger({
 
           <div className="space-y-4">
             <aside className="rounded-control border border-marigold-300 bg-marigold-100 p-4 text-sm leading-6 text-forest-950">
-              <strong>Prototype disclosure:</strong> mock UPI — no real money moves, and no payment processor is involved.
+              mock UPI — no real money moves, and no payment processor is involved.
             </aside>
             <Card className="p-6">
               <h2 className="text-xl font-black text-forest-950">Receipt list</h2>

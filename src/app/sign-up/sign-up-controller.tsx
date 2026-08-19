@@ -27,13 +27,13 @@ export function SignUpController() {
         body: JSON.stringify({ phone }),
       });
       const body = await response.json() as ApiError & { devOtp?: string };
-      if (!response.ok || !body.devOtp) throw new Error(body.error?.message ?? "Could not request the DEV OTP.");
+      if (!response.ok || !body.devOtp) throw new Error(body.error?.message ?? "Could not send the sign-in code.");
       setDevOtp(body.devOtp);
       setOtp(body.devOtp);
       setRequested(true);
-      setMessage("DEV OTP ready. No SMS was sent.");
+      setMessage("Your sign-in code is ready. No SMS was sent.");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not request the DEV OTP.");
+      setMessage(error instanceof Error ? error.message : "Could not send the sign-in code.");
     } finally {
       setBusy(false);
     }
@@ -50,11 +50,11 @@ export function SignUpController() {
         body: JSON.stringify({ phone, name, otp }),
       });
       const body = await response.json() as ApiError & { next?: string };
-      if (!response.ok || !body.next) throw new Error(body.error?.message ?? "Could not verify the DEV OTP.");
+      if (!response.ok || !body.next) throw new Error(body.error?.message ?? "Could not verify the sign-in code.");
       router.push(body.next);
       router.refresh();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not verify the DEV OTP.");
+      setMessage(error instanceof Error ? error.message : "Could not verify the sign-in code.");
       setBusy(false);
     }
   }

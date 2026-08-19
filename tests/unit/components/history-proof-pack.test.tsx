@@ -59,6 +59,6 @@ describe("HistoryProofPack", () => {
     expect(screen.getByText("Collector confirmation missing")).toBeInTheDocument();
     expect(screen.getByText("Receipt VN-RCP-202608-000006")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Print proof pack" })).toBeInTheDocument();
-    expect(screen.getByText(/UPI payment is simulated/i)).toBeInTheDocument();
+    expect(screen.getByText(/No real money moves/i)).toBeInTheDocument();
   });
 });

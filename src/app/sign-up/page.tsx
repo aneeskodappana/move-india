@@ -9,7 +9,7 @@ export default async function SignUpPage() {
   if (session?.state === "verified") redirect("/join-property");
 
   return (
-    <AuthShell description="Create an occupant identity first. Your record follows you—not just the property owner or household QR." eyebrow="Step 1 of 2" title="Sign up as the person who lives here.">
+    <AuthShell description="Your collection record belongs to you — not only to the owner or the household QR." eyebrow="Sign in" title="Sign in as the person who lives here.">
       <SignUpController />
     </AuthShell>
   );

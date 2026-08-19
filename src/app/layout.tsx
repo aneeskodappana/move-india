@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Vandi | Resident waste-collection records",
+  title: "Vandi | Collection records for residents",
   description:
-    "An independent hackathon prototype for clear collection schedules and two-sided handover records.",
+    "See today’s waste pickup, record the handover, and keep your own receipts — in your name, not just the household’s.",
 };
 
 export const viewport: Viewport = {

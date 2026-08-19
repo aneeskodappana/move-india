@@ -6,10 +6,13 @@ describe("FoundationDashboard", () => {
   it("labels the build honestly and previews the full primary journey", () => {
     render(<FoundationDashboard foundation={appFoundation} />);
 
-    expect(screen.getByText("Independent hackathon prototype")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Know what is collected. Prove you handed it over." })).toBeInTheDocument();
+    expect(screen.getByText("Kochi collection service")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Today’s pickup, recorded in your name." })).toBeInTheDocument();
+    expect(screen.getByText("Kadavanthra")).toBeInTheDocument();
+    expect(screen.getByText("Food waste")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Cleaner streets start with a clearer doorstep." })).toBeInTheDocument();
     expect(screen.getAllByRole("listitem")).toHaveLength(4);
-    expect(screen.getByText("No live government systems, telecom delivery, payments, or personal data.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open resident demo" })).toHaveAttribute("href", "/sign-up");
+    expect(screen.getByText(/Not a government service/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Sign in as a resident" })).toHaveAttribute("href", "/sign-up");
   });
 });

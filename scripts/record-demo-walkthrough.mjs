@@ -47,18 +47,18 @@ async function moveAndClick(locator) {
 }
 
 await page.goto(`${origin}/`, { waitUntil: "domcontentloaded" });
-await page.getByRole("heading", { name: /Know what is collected/i }).waitFor();
+await page.getByRole("heading", { name: /Today’s pickup, recorded in your name/i }).waitFor();
 await pause(3200);
-await moveAndClick(page.getByRole("link", { name: "Open resident demo" }));
+await moveAndClick(page.getByRole("link", { name: "Sign in as a resident" }));
 
-await page.getByRole("heading", { name: /Sign up as the person/i }).waitFor();
+await page.getByRole("heading", { name: /Sign in as the person/i }).waitFor();
 await pause(1600);
-const phone = page.getByLabel("Synthetic phone number");
+const phone = page.getByLabel("Mobile number");
 await moveAndClick(phone);
 await phone.press("End");
 await page.keyboard.type("00002", { delay: 160 });
 await pause(700);
-await moveAndClick(page.getByRole("button", { name: "Request DEV OTP" }));
+await moveAndClick(page.getByRole("button", { name: "Send sign-in code" }));
 
 await page.getByText("DEV MODE").waitFor();
 await page.getByRole("button", { name: "Verify and continue" }).waitFor();

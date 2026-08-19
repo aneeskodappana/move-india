@@ -31,11 +31,11 @@ export function ResidentHandoverCard(props: ResidentHandoverCardProps) {
         <h2 className="mt-2 text-2xl font-black text-forest-950">Waste is outside?</h2>
         <p className="mt-3 text-sm leading-6 text-stone-700">Create your timestamp first. The collector confirms pickup separately.</p>
         <label className="mt-5 block text-sm font-bold text-forest-950">
-          Optional proof photo URL
+          Optional photo link
           <input
             className="mt-2 min-h-12 w-full rounded-control border border-stone-300 bg-white px-4 py-3 text-base outline-none focus:border-forest-600"
             onChange={(event) => props.onPhotoUrlChange(event.target.value)}
-            placeholder="https://example.com/photo.jpg"
+            placeholder="https://"
             type="url"
             value={props.photoUrl}
           />
@@ -73,7 +73,7 @@ export function ResidentHandoverCard(props: ResidentHandoverCardProps) {
         </div>
       </dl>
       <div className="grid gap-3 border-t border-stone-100 p-5 sm:grid-cols-2">
-        {!collected ? <Link className="inline-flex min-h-12 items-center justify-center rounded-control border border-forest-200 px-4 text-sm font-black text-forest-900" href="/coordinator">Open collector screen</Link> : null}
+        {!collected ? <Link className="inline-flex min-h-12 items-center justify-center rounded-control border border-forest-200 px-4 text-sm font-black text-forest-900" href="/coordinator">Collector sign-in</Link> : null}
         <Button className={collected ? "w-full sm:col-span-2" : "w-full"} disabled={props.busy} onClick={props.onRefresh} tone="secondary">{props.busy ? "Refreshing…" : "Refresh status"}</Button>
       </div>
     </Card>

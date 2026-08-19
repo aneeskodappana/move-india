@@ -32,9 +32,9 @@ export function JoinPropertyForm(props: JoinPropertyFormProps) {
     <Card className="p-5 sm:p-7">
       <form className="space-y-6" onSubmit={props.onSubmit}>
         <label className="block text-sm font-bold text-forest-950">
-          Mocked property and ward
+          Building and ward
           <select className={inputClass} onChange={(event) => props.onPropertyChange(event.target.value)} required value={props.propertyId}>
-            <option disabled value="">Choose a synthetic address</option>
+            <option disabled value="">Choose your address</option>
             {props.properties.map((property) => <option key={property.id} value={property.id}>{property.addressLine} · {property.ward}</option>)}
           </select>
         </label>
@@ -47,7 +47,7 @@ export function JoinPropertyForm(props: JoinPropertyFormProps) {
               <ul className="mt-4 space-y-2 text-sm text-stone-700">
                 {selected.occupants.map((occupant) => <li className="flex justify-between gap-4 border-t border-forest-200 pt-2" key={occupant.id}><span>{occupant.name}</span><span className="capitalize">{occupant.role}</span></li>)}
               </ul>
-            ) : <p className="mt-3 text-sm text-stone-700">You’ll be the first demo resident at this address.</p>}
+            ) : <p className="mt-3 text-sm text-stone-700">You’ll be the first resident registered at this address.</p>}
           </section>
         ) : null}
 

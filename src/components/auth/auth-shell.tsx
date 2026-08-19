@@ -18,7 +18,7 @@ export function AuthShell({ eyebrow, title, description, children }: AuthShellPr
             <span className="grid h-10 w-10 place-items-center rounded-control bg-forest-900 font-black text-white">V</span>
             <span className="font-black text-forest-950">Vandi</span>
           </Link>
-          <Badge tone="marigold">Independent prototype</Badge>
+          <Badge tone="neutral">Kochi</Badge>
         </header>
         <div className="grid gap-10 py-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:py-16">
           <section>
@@ -28,7 +28,7 @@ export function AuthShell({ eyebrow, title, description, children }: AuthShellPr
           </section>
           {children}
         </div>
-        <footer className="border-t border-forest-200 py-5 text-xs leading-5 text-stone-700">Synthetic Kochi demo data only. No SMS is sent and no government system is connected.</footer>
+        <footer className="border-t border-forest-200 py-5 text-xs leading-5 text-stone-700">Vandi is independent of government collection systems. No SMS is sent from this screen.</footer>
       </div>
     </main>
   );

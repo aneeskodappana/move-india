@@ -473,7 +473,7 @@ const suites = {
         file: "docs/demo-script.md",
         description: "Demo script is a one-minute product walkthrough",
         verify: (content) =>
-          content.includes("Open resident demo") &&
+          content.includes("Sign in as a resident") &&
           content.includes("Proof pack") &&
           content.includes("Payments") &&
           content.includes("vandi-eight.vercel.app"),
@@ -545,8 +545,8 @@ async function runProductionSmokeTest(checks) {
     }
 
     const html = await response.text();
-    if (!html.includes("Know what is collected") || !html.includes("Independent hackathon prototype")) {
-      throw new Error("Production HTML is missing the expected foundation content.");
+    if (!html.includes("Today’s pickup, recorded in your name") || !html.includes("Not a government service")) {
+      throw new Error("Production HTML is missing the expected landing content.");
     }
 
     record(checks, "Production HTTP smoke test", "passed", "HTTP 200 with expected content");
@@ -655,7 +655,7 @@ async function runAuthRegistrationSmokeTest(checks) {
     const homeHtml = await homeResponse.text();
     if (
       !homeResponse.ok ||
-      (!homeHtml.includes("Registration complete") && !homeHtml.includes("Resident Today"))
+      (!homeHtml.includes("Put out today") && !homeHtml.includes("No collection scheduled"))
     ) {
       throw new Error("Registered resident home did not render the completed state.");
     }
@@ -732,7 +732,7 @@ async function runTodayBroadcastSmokeTest(checks) {
       today?.resident?.name !== "Anjali Nair" ||
       today?.collection?.materialType !== "Food waste" ||
       today?.collection?.timeWindow !== "7:00–8:30 AM" ||
-      today?.route?.name !== "Demo Elamkulam North" ||
+      today?.route?.name !== "Elamkulam North" ||
       !today?.message?.includes("Food waste")
     ) {
       throw new Error("Today API did not resolve the seeded route and collection window.");
@@ -741,7 +741,7 @@ async function runTodayBroadcastSmokeTest(checks) {
     const homeResponse = await fetch(`${origin}/home`, { headers: { cookie } });
     const homeHtml = await homeResponse.text();
     const expectedContent = [
-      "Resident Today",
+      "Put out today",
       "Food waste",
       "7:00–8:30 AM",
       "App push",
@@ -750,7 +750,7 @@ async function runTodayBroadcastSmokeTest(checks) {
       "channel delivery is simulated",
     ];
     if (!homeResponse.ok || !expectedContent.every((content) => homeHtml.includes(content))) {
-      throw new Error("Resident Today HTML is missing schedule or channel-preview content.");
+      throw new Error("Resident home HTML is missing schedule or channel-preview content.");
     }
 
     record(
@@ -1083,8 +1083,8 @@ async function runSecurityPolishSmokeTest(checks) {
     if (!landing?.ok) throw new Error(`M6 production server did not become ready. ${serverOutput.join("")}`);
 
     const landingHtml = await landing.text();
-    if (!landingHtml.includes("Know what is collected") || !landingHtml.includes("Independent hackathon prototype")) {
-      throw new Error("Landing page is missing the prototype disclosure.");
+    if (!landingHtml.includes("Today’s pickup, recorded in your name") || !landingHtml.includes("Not a government service")) {
+      throw new Error("Landing page is missing the expected service content.");
     }
     const requiredHeaders = ["x-content-type-options", "x-frame-options", "referrer-policy", "permissions-policy"];
     const missingHeader = requiredHeaders.find((header) => !landing.headers.get(header));

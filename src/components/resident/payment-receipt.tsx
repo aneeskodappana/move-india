@@ -58,7 +58,7 @@ export function PaymentReceipt({ receipt }: { receipt: PaymentReceiptView }) {
           </dl>
         </Card>
         <aside className="mt-6 rounded-control border border-marigold-300 bg-marigold-100 p-4 text-sm leading-6 text-forest-950">
-          <strong>Prototype disclosure:</strong> mock UPI — no real money moves, and no payment processor is involved.
+          mock UPI — no real money moves, and no payment processor is involved.
         </aside>
       </div>
     </main>

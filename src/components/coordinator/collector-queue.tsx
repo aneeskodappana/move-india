@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { PendingCollectorView } from "@/services/handover.service";
@@ -14,7 +15,7 @@ export function CollectorQueue(props: CollectorQueueProps) {
       <div className="mx-auto max-w-4xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-forest-200 pb-5">
           <div>
-            <a className="text-xs font-black uppercase tracking-[0.2em] text-forest-600" href="/">Vandi · field operations</a>
+            <Link className="text-xs font-black uppercase tracking-[0.2em] text-forest-600" href="/">Vandi · field operations</Link>
             <h1 className="mt-1 text-3xl font-black text-forest-950">Pickup confirmations</h1>
           </div>
           <span className="rounded-full bg-marigold-100 px-4 py-2 text-xs font-black uppercase tracking-wider text-forest-950">DEV collector mode</span>

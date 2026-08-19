@@ -1,4 +1,5 @@
 import { config as loadEnvironment } from "dotenv";
+import { eq } from "drizzle-orm";
 import { getDatabaseClient } from "@/db/client";
 import {
   collectionEvents,
@@ -60,6 +61,21 @@ await withDatabaseRetry("Payment seed", () =>
 await withDatabaseRetry("Grievance seed", () =>
   database.insert(grievances).values(data.grievances).onConflictDoNothing(),
 );
+
+for (const route of data.routes) {
+  await withDatabaseRetry(`Route label ${route.name}`, () =>
+    database.update(routes).set({ name: route.name, ward: route.ward }).where(eq(routes.id, route.id)),
+  );
+}
+
+for (const property of data.properties) {
+  await withDatabaseRetry(`Property label ${property.addressLine}`, () =>
+    database
+      .update(properties)
+      .set({ addressLine: property.addressLine, ward: property.ward })
+      .where(eq(properties.id, property.id)),
+  );
+}
 
 process.stdout.write(
   `Seeded ${data.routes.length} routes, ${data.properties.length} properties, ${data.occupants.length} occupants, ${data.collectionEvents.length} collection events, ${data.handoverLogs.length} handover logs, ${data.payments.length} payments, and ${data.grievances.length} grievance.\n`,

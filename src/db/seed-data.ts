@@ -62,22 +62,22 @@ const baseCalendar = {
 
 export function buildSeedData(referenceDate = new Date("2026-08-18T00:00:00.000Z")) {
   const routes: SeedRoute[] = [
-    { id: stableUuid("route-elamkulam"), ward: "Elamkulam", name: "Demo Elamkulam North", weeklyMaterialCalendar: baseCalendar },
-    { id: stableUuid("route-kadavanthra"), ward: "Kadavanthra", name: "Demo Kadavanthra Central", weeklyMaterialCalendar: baseCalendar },
-    { id: stableUuid("route-panampilly"), ward: "Panampilly Nagar", name: "Demo Panampilly South", weeklyMaterialCalendar: baseCalendar },
-    { id: stableUuid("route-thevara"), ward: "Thevara", name: "Demo Thevara East", weeklyMaterialCalendar: baseCalendar },
+    { id: stableUuid("route-elamkulam"), ward: "Elamkulam", name: "Elamkulam North", weeklyMaterialCalendar: baseCalendar },
+    { id: stableUuid("route-kadavanthra"), ward: "Kadavanthra", name: "Kadavanthra Central", weeklyMaterialCalendar: baseCalendar },
+    { id: stableUuid("route-panampilly"), ward: "Panampilly Nagar", name: "Panampilly South", weeklyMaterialCalendar: baseCalendar },
+    { id: stableUuid("route-thevara"), ward: "Thevara", name: "Thevara East", weeklyMaterialCalendar: baseCalendar },
   ];
 
   const routeByWard = new Map(routes.map((route) => [route.ward, route.id] as const));
   const propertyDefinitions = [
-    ["shared-lotus", "Demo Lotus House, Lane 1", "Elamkulam", "VN-EKM-01-1001", 9.9681, 76.2992],
-    ["canal-view", "Demo Canal View, Lane 2", "Elamkulam", "VN-EKM-01-1002", 9.9692, 76.3011],
-    ["mango-court", "Demo Mango Court, Lane 3", "Kadavanthra", "VN-EKM-02-1003", 9.9652, 76.3068],
-    ["rain-tree", "Demo Rain Tree Home, Lane 4", "Kadavanthra", "VN-EKM-02-1004", 9.9637, 76.3049],
-    ["harbour-nest", "Demo Harbour Nest, Lane 5", "Panampilly Nagar", "VN-EKM-03-1005", 9.9568, 76.2971],
-    ["garden-court", "Demo Garden Court, Lane 6", "Panampilly Nagar", "VN-EKM-03-1006", 9.9583, 76.2958],
-    ["backwater-view", "Demo Backwater View, Lane 7", "Thevara", "VN-EKM-04-1007", 9.9431, 76.2977],
-    ["palm-house", "Demo Palm House, Lane 8", "Thevara", "VN-EKM-04-1008", 9.945, 76.3002],
+    ["shared-lotus", "Lotus House, Lane 1", "Elamkulam", "VN-EKM-01-1001", 9.9681, 76.2992],
+    ["canal-view", "Canal View, Lane 2", "Elamkulam", "VN-EKM-01-1002", 9.9692, 76.3011],
+    ["mango-court", "Mango Court, Lane 3", "Kadavanthra", "VN-EKM-02-1003", 9.9652, 76.3068],
+    ["rain-tree", "Rain Tree Home, Lane 4", "Kadavanthra", "VN-EKM-02-1004", 9.9637, 76.3049],
+    ["harbour-nest", "Harbour Nest, Lane 5", "Panampilly Nagar", "VN-EKM-03-1005", 9.9568, 76.2971],
+    ["garden-court", "Garden Court, Lane 6", "Panampilly Nagar", "VN-EKM-03-1006", 9.9583, 76.2958],
+    ["backwater-view", "Backwater View, Lane 7", "Thevara", "VN-EKM-04-1007", 9.9431, 76.2977],
+    ["palm-house", "Palm House, Lane 8", "Thevara", "VN-EKM-04-1008", 9.945, 76.3002],
   ] as const;
 
   const properties: SeedProperty[] = propertyDefinitions.map(

@@ -57,8 +57,8 @@ export function BroadcastSimulator({ message }: { message: string }) {
   return (
     <Card className="overflow-hidden">
       <div className="border-b border-stone-100 p-5 sm:p-6">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-forest-600">One message, every channel</p>
-        <h2 className="mt-2 text-2xl font-black text-forest-950">Broadcast preview</h2>
+        <p className="text-xs font-black uppercase tracking-[0.18em] text-forest-600">Today’s collection message</p>
+        <h2 className="mt-2 text-2xl font-black text-forest-950">How you’ll be notified</h2>
         <div aria-label="Broadcast channel" className="mt-5 grid grid-cols-3 gap-2" role="group">
           {channels.map((candidate) => (
             <button

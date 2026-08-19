@@ -24,7 +24,7 @@ export function HistoryProofPack({ pack }: { pack: ProofPackView }) {
 
         <section className="flex flex-wrap items-end justify-between gap-4 py-8">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-forest-600">Occupant history</p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-forest-600">Your collection history</p>
             <h1 className="mt-2 text-4xl font-black tracking-tight text-forest-950">Proof pack</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-700">
               {pack.resident.name} · {pack.property.addressLine}. Date, material, kept-out time, collected time, and receipts in one record.
@@ -133,7 +133,7 @@ export function HistoryProofPack({ pack }: { pack: ProofPackView }) {
               )}
             </Card>
             <aside className="rounded-control border border-marigold-300 bg-marigold-100 p-4 text-sm leading-6 text-forest-950">
-              <strong>Prototype disclosure:</strong> this proof pack is the occupant-level record. UPI payment is simulated and no real money moves.
+              Payments shown here are simulated. No real money moves.
             </aside>
           </aside>
         </section>

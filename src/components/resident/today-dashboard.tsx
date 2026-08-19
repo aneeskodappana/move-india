@@ -9,7 +9,7 @@ export function TodayDashboard({ today, handoverControl }: { today: TodayView; h
   return (
     <main className="min-h-screen bg-canvas px-5 py-6 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-6xl">
-        <ResidentNav current="today" location={today.property.ward} name={today.resident.name} title="Resident Today" />
+        <ResidentNav current="today" location={today.property.ward} name={today.resident.name} title="Today" />
 
         <section className="grid gap-6 py-8 lg:grid-cols-[1.15fr_0.85fr] lg:py-12">
           <div className="overflow-hidden rounded-card bg-forest-950 text-white shadow-card">
@@ -36,14 +36,14 @@ export function TodayDashboard({ today, handoverControl }: { today: TodayView; h
             </div>
             <div className="border-t border-forest-700 bg-forest-900 p-5 sm:px-9">
               <p className="text-sm font-bold">{today.property.addressLine}</p>
-              <p className="mt-1 text-xs text-forest-200">Synthetic property · {today.property.ward}</p>
+              <p className="mt-1 text-xs text-forest-200">{today.property.ward}</p>
             </div>
           </div>
 
           <div className="space-y-6">
             {handoverControl ?? <Card className="p-6"><p className="text-sm font-bold text-stone-700">No handover action is available today.</p></Card>}
             <aside className="rounded-control border border-marigold-300 bg-marigold-100 p-4 text-sm leading-6 text-forest-950">
-              <strong>Prototype disclosure:</strong> channel delivery is simulated. No SMS or WhatsApp message is actually sent.
+              SMS and WhatsApp previews are shown here. Channel delivery is simulated, and no message is actually sent.
             </aside>
           </div>
         </section>
