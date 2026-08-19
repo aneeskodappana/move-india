@@ -41,12 +41,11 @@ export function FoundationDashboard({ foundation }: FoundationDashboardProps) {
           <div className="lg:col-span-8">
             <Badge tone="forest">Kochi collection service</Badge>
             <h1 className="mt-6 max-w-4xl break-words text-4xl font-black leading-none tracking-tight text-forest-950 sm:text-6xl lg:text-7xl">
-              Today’s pickup, recorded in your name.
+              Waste management done right.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-stone-700 sm:text-xl">
-              Waste management starts at the doorstep: the right material, on the right morning,
-              handed to the collector. Vandi keeps that record in your name — even if you are a
-              tenant, not the property owner.
+              The right bag, on the right morning, handed to the collector — and a record for
+              the person who put it out, even if they are a tenant, not the owner.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link className="inline-flex min-h-12 items-center justify-center rounded-control bg-forest-900 px-5 text-sm font-black text-white" href="/sign-up">

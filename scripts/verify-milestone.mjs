@@ -545,7 +545,7 @@ async function runProductionSmokeTest(checks) {
     }
 
     const html = await response.text();
-    if (!html.includes("Today’s pickup, recorded in your name") || !html.includes("Not a government service")) {
+    if (!html.includes("Waste management done right") || !html.includes("Not a government service")) {
       throw new Error("Production HTML is missing the expected landing content.");
     }
 
@@ -1083,7 +1083,7 @@ async function runSecurityPolishSmokeTest(checks) {
     if (!landing?.ok) throw new Error(`M6 production server did not become ready. ${serverOutput.join("")}`);
 
     const landingHtml = await landing.text();
-    if (!landingHtml.includes("Today’s pickup, recorded in your name") || !landingHtml.includes("Not a government service")) {
+    if (!landingHtml.includes("Waste management done right") || !landingHtml.includes("Not a government service")) {
       throw new Error("Landing page is missing the expected service content.");
     }
     const requiredHeaders = ["x-content-type-options", "x-frame-options", "referrer-policy", "permissions-policy"];

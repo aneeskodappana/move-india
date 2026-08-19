@@ -3,7 +3,7 @@
 **Companion to `vandi-idea-doc.docx`.** This is the engineering brief — hand this directly to Codex as your build prompt, or work through it milestone by milestone.
 
 Build window: **Aug 18 → Aug 27, 2026** (10 calendar days, one weekend: Aug 22–23).
-**Build tool: Codex, exclusively, from the first commit.** This document itself was planned and written with Claude — that's fine, it's a planning artifact, not the submission. The repository you actually submit is a different thing: every line of the app, from scaffold to final deploy, should be produced through Codex, because that's what the hackathon rules require and what your write-up has to demonstrate.
+**Build tool: Codex, exclusively, from the first commit.** Every line of the submitted app, from scaffold to final deployment, should be produced through Codex, because that is what the hackathon rules require and what the write-up must demonstrate.
 
 ---
 

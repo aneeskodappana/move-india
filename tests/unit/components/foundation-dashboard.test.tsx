@@ -7,7 +7,7 @@ describe("FoundationDashboard", () => {
     render(<FoundationDashboard foundation={appFoundation} />);
 
     expect(screen.getByText("Kochi collection service")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Today’s pickup, recorded in your name." })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Waste management done right." })).toBeInTheDocument();
     expect(screen.getByText("Kadavanthra")).toBeInTheDocument();
     expect(screen.getByText("Food waste")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Cleaner streets start with a clearer doorstep." })).toBeInTheDocument();

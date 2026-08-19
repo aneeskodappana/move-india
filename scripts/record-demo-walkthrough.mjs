@@ -47,7 +47,7 @@ async function moveAndClick(locator) {
 }
 
 await page.goto(`${origin}/`, { waitUntil: "domcontentloaded" });
-await page.getByRole("heading", { name: /Today’s pickup, recorded in your name/i }).waitFor();
+await page.getByRole("heading", { name: /Waste management done right/i }).waitFor();
 await pause(3200);
 await moveAndClick(page.getByRole("link", { name: "Sign in as a resident" }));
 

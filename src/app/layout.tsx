@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Vandi | Collection records for residents",
   description:
-    "See today’s waste pickup, record the handover, and keep your own receipts — in your name, not just the household’s.",
+    "Waste management done right: the right bag on the right morning, with a record for the person who put it out.",
 };
 
 export const viewport: Viewport = {
