@@ -456,6 +456,7 @@ const suites = {
       "docs/submission-write-up.md",
       "docs/demo-script.md",
       "docs/vandi-demo.mp4",
+      "docs/vandi-collector-demo.mp4",
       "vandi-idea-doc.docx",
     ],
     fileAssertions: [

@@ -57,4 +57,6 @@ The M1 seed is deterministic and idempotent. It contains only invented addresses
 - `vandi-idea-doc.docx` explains the problem, evidence, insight, and submission story.
 - `vandi-technical-spec.md` defines scope, architecture, security rules, milestones, and demo flow.
 - `docs/submission-write-up.md` is the finalized form text.
-- `docs/vandi-demo.mp4` is the one-minute product walkthrough (script in `docs/demo-script.md`).
+- `docs/vandi-demo.mp4` is the resident walkthrough.
+- `docs/vandi-collector-demo.mp4` is the collector walkthrough.
+- Both scripts are in `docs/demo-script.md`.

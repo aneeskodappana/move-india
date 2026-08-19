@@ -57,3 +57,5 @@ The M5 report contains 29 passing checks: strict static gates, 79 tests, product
 The M6 report contains 31 passing checks: the §8.5 security record, wrap-safe resident chrome, loading skeletons, production security headers, collector rate-limiting, rejection of the example session secret, 84 tests, a clean production audit, and a live HTTP journey that proves landing disclosure, unauthenticated mutation denial, and OTP 429. Production is live at https://vandi-eight.vercel.app.
 
 The M7 report confirms the finalized submission write-up and a silent one-minute product walkthrough recorded from the live app (landing → DEV sign-in → Today → History proof pack → receipt).
+
+A companion collector walkthrough (`docs/vandi-collector-demo.mp4`) shows DEV collector login, the kept-out queue, and **Mark collected**. The M8 live-link smoke test passed on 2026-08-19 against https://vandi-eight.vercel.app (landing, DEV sign-up, Anjali proof-pack gap, collector login, security headers, unauthenticated pay denial). The official submission form still has to be sent by the team lead; that step cannot be automated here.

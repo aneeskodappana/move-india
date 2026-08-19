@@ -13,7 +13,10 @@ export function CollectorQueue(props: CollectorQueueProps) {
     <main className="min-h-screen bg-canvas px-5 py-6 sm:px-8">
       <div className="mx-auto max-w-4xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-forest-200 pb-5">
-          <div><p className="text-xs font-black uppercase tracking-[0.2em] text-forest-600">Vandi · field operations</p><h1 className="mt-1 text-3xl font-black text-forest-950">Pickup confirmations</h1></div>
+          <div>
+            <a className="text-xs font-black uppercase tracking-[0.2em] text-forest-600" href="/">Vandi · field operations</a>
+            <h1 className="mt-1 text-3xl font-black text-forest-950">Pickup confirmations</h1>
+          </div>
           <span className="rounded-full bg-marigold-100 px-4 py-2 text-xs font-black uppercase tracking-wider text-forest-950">DEV collector mode</span>
         </header>
         <div className="py-8">

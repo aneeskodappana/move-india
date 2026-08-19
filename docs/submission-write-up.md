@@ -15,7 +15,7 @@ Renters, PG residents, and flatmates across Kochi and other Kerala towns using H
 
 Vandi adds an occupant-level layer on top of the existing household model: individual resident profiles, daily multi-channel broadcasts, a two-sided timestamped handover record, and a personal payment ledger.
 
-The primary journey is Anjali, a tenant at a shared Elamkulam flat. She signs up as herself, joins the property without replacing the owner, sees today’s material and window, marks waste kept out, the collector confirms pickup on a separate session, and her history/proof pack keeps both timestamps plus her own receipts.
+The primary journey is Anjali, a tenant at a shared Elamkulam flat. She signs up as herself, joins the property without replacing the owner, sees today’s material and window, marks waste kept out, the collector confirms pickup on a separate DEV collector session, and her history/proof pack keeps both timestamps plus her own receipts. Walkthroughs: `docs/vandi-demo.mp4` (resident) and `docs/vandi-collector-demo.mp4` (collector).
 
 ## What changed, and why
 

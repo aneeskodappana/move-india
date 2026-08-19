@@ -15,7 +15,9 @@ export function CoordinatorLogin(props: CoordinatorLoginProps) {
   return (
     <main className="grid min-h-screen place-items-center bg-forest-950 px-5 py-10">
       <div className="w-full max-w-md">
-        <p className="mb-4 text-center text-sm font-black uppercase tracking-[0.2em] text-marigold-300">Vandi · field operations</p>
+        <p className="mb-4 text-center">
+          <a className="text-sm font-black uppercase tracking-[0.2em] text-marigold-300" href="/">Vandi · field operations</a>
+        </p>
         <Card className="p-6 sm:p-8">
           <span className="inline-flex rounded-full bg-marigold-100 px-3 py-1 text-xs font-black uppercase tracking-wider text-forest-950">DEV collector mode</span>
           <h1 className="mt-5 text-3xl font-black tracking-tight text-forest-950">Collector confirmation</h1>
