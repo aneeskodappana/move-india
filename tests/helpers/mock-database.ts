@@ -12,3 +12,18 @@ export function createInsertHarness<T>(insertedRow: T) {
     returning,
   };
 }
+
+export function createSelectOneHarness<T>(rows: T[]) {
+  const limit = vi.fn().mockResolvedValue(rows);
+  const where = vi.fn().mockReturnValue({ limit });
+  const from = vi.fn().mockReturnValue({ where });
+  const select = vi.fn().mockReturnValue({ from });
+
+  return {
+    database: { select } as unknown as DatabaseClient,
+    select,
+    from,
+    where,
+    limit,
+  };
+}

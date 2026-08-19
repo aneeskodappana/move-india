@@ -1,4 +1,4 @@
-const defaultRetryDelaysMs = [250, 500, 1_000] as const;
+const defaultRetryDelaysMs = [250, 500, 1_000, 2_000, 4_000] as const;
 
 export async function withDatabaseRetry<T>(
   label: string,

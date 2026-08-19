@@ -136,6 +136,61 @@ const suites = {
     migrationDirectoryMustBeClean: true,
     smokeTest: false,
   },
+  M2: {
+    requiredFiles: [
+      "src/lib/session.ts",
+      "src/lib/rate-limit.ts",
+      "src/schemas/auth.schema.ts",
+      "src/schemas/registration.schema.ts",
+      "src/services/auth.service.ts",
+      "src/services/occupant.service.ts",
+      "src/services/property.service.ts",
+      "src/app/api/auth/request-otp/route.ts",
+      "src/app/api/auth/verify-otp/route.ts",
+      "src/app/api/occupants/register/route.ts",
+      "src/app/api/properties/route.ts",
+      "src/app/sign-up/page.tsx",
+      "src/app/join-property/page.tsx",
+      "tests/unit/services/auth.service.test.ts",
+      "tests/unit/services/occupant.service.test.ts",
+    ],
+    fileAssertions: [
+      {
+        file: "src/lib/session-cookie.ts",
+        description: "Session cookie has the required security attributes",
+        verify: (content) =>
+          content.includes("httpOnly: true") &&
+          content.includes("secure: true") &&
+          content.includes('sameSite: "lax"'),
+      },
+      {
+        file: "src/components/auth/dev-mode-banner.tsx",
+        description: "Mock OTP is unmistakably labeled DEV MODE",
+        verify: (content) => content.includes("DEV MODE") && content.includes("No SMS will be sent"),
+      },
+      {
+        file: "src/app/api/occupants/register/route.ts",
+        description: "Registration route delegates authorization and business logic to services",
+        verify: (content) =>
+          content.includes("requireRequestSession") && content.includes("services.occupants.register"),
+      },
+    ],
+    commands: [
+      { label: "Lint", command: "npm", args: ["run", "lint"] },
+      { label: "Strict type check", command: "npm", args: ["run", "typecheck"] },
+      { label: "Auth, service, repository, and component tests", command: "npm", args: ["run", "test"] },
+      { label: "Production build", command: "npm", args: ["run", "build"] },
+      { label: "Live development database regression verification", command: "npm", args: ["run", "db:verify:m1"] },
+      {
+        label: "Production dependency audit",
+        command: "npm",
+        args: ["audit", "--omit=dev", "--audit-level=high"],
+      },
+    ],
+    migrationDirectoryMustBeClean: true,
+    smokeTest: false,
+    authRegistrationSmokeTest: true,
+  },
 };
 
 function record(checks, label, status, detail) {
@@ -202,6 +257,119 @@ async function runProductionSmokeTest(checks) {
   }
 }
 
+async function runAuthRegistrationSmokeTest(checks) {
+  const port = 3198;
+  const origin = `http://127.0.0.1:${port}`;
+  const serverOutput = [];
+  const server = spawn(
+    process.execPath,
+    [path.join(projectRoot, "node_modules/next/dist/bin/next"), "start", "-p", String(port)],
+    {
+      cwd: projectRoot,
+      env: { ...process.env, PORT: String(port) },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+  server.stdout.on("data", (chunk) => serverOutput.push(chunk.toString()));
+  server.stderr.on("data", (chunk) => serverOutput.push(chunk.toString()));
+
+  try {
+    let ready = false;
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      try {
+        const response = await fetch(`${origin}/sign-up`, { redirect: "manual" });
+        if (response.ok) {
+          ready = true;
+          break;
+        }
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+    }
+    if (!ready) throw new Error(`M2 production server did not become ready. ${serverOutput.join("")}`);
+
+    let verifiedCookie;
+    let verifiedPhone;
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      const suffix = String((Date.now() + process.pid + attempt) % 100_000).padStart(5, "0");
+      const phone = `+91-00000-${suffix}`;
+      const otpResponse = await fetch(`${origin}/api/auth/request-otp`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const otpBody = await otpResponse.json();
+      if (!otpResponse.ok || otpBody.mode !== "DEV MODE" || !otpBody.devOtp) {
+        throw new Error("DEV OTP request did not return the explicitly mocked code.");
+      }
+
+      const verifyResponse = await fetch(`${origin}/api/auth/verify-otp`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone, name: "Milestone Verifier", otp: otpBody.devOtp }),
+      });
+      const verifyBody = await verifyResponse.json();
+      const setCookie = verifyResponse.headers.get("set-cookie") ?? "";
+      if (!verifyResponse.ok || !setCookie) throw new Error("OTP verification did not issue a session cookie.");
+      if (verifyBody.next === "/join-property") {
+        verifiedCookie = setCookie.split(";")[0];
+        verifiedPhone = phone;
+        if (!/HttpOnly/i.test(setCookie) || !/Secure/i.test(setCookie) || !/SameSite=Lax/i.test(setCookie)) {
+          throw new Error("Issued session cookie is missing a required security attribute.");
+        }
+        break;
+      }
+    }
+    if (!verifiedCookie || !verifiedPhone) throw new Error("Could not allocate an unused synthetic verifier phone.");
+
+    const propertiesResponse = await fetch(`${origin}/api/properties`, {
+      headers: { cookie: verifiedCookie },
+    });
+    const propertiesBody = await propertiesResponse.json();
+    const propertyOptions = Array.isArray(propertiesBody.properties) ? propertiesBody.properties : [];
+    const property = [...propertyOptions].sort(
+      (left, right) => (right.occupants?.length ?? 0) - (left.occupants?.length ?? 0),
+    )[0];
+    if (!propertiesResponse.ok || !property?.id) {
+      throw new Error("Authenticated property discovery did not return a join option.");
+    }
+
+    const registerResponse = await fetch(`${origin}/api/occupants/register`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: verifiedCookie },
+      body: JSON.stringify({ propertyId: property.id, role: "tenant", moveInDate: "2026-08-01" }),
+    });
+    const registerBody = await registerResponse.json();
+    const registeredSetCookie = registerResponse.headers.get("set-cookie") ?? "";
+    const registeredCookie = registeredSetCookie.split(";")[0];
+    if (registerResponse.status !== 201 || registerBody.occupant?.phone !== verifiedPhone || !registeredCookie) {
+      throw new Error("Verified occupant registration did not complete against the live database.");
+    }
+
+    const sessionResponse = await fetch(`${origin}/api/session`, {
+      headers: { cookie: registeredCookie },
+    });
+    const sessionBody = await sessionResponse.json();
+    if (!sessionResponse.ok || sessionBody.session?.state !== "registered") {
+      throw new Error("The post-registration session was not upgraded to registered.");
+    }
+    const homeResponse = await fetch(`${origin}/home`, { headers: { cookie: registeredCookie } });
+    const homeHtml = await homeResponse.text();
+    if (!homeResponse.ok || !homeHtml.includes("Registration complete")) {
+      throw new Error("Registered resident home did not render the completed state.");
+    }
+
+    record(
+      checks,
+      "Live auth and registration HTTP journey",
+      "passed",
+      "DEV OTP → signed cookie → property discovery → occupant insert → registered home",
+    );
+  } finally {
+    server.kill("SIGTERM");
+  }
+}
+
 async function main() {
   if (!milestone || !(milestone in suites)) {
     const available = Object.keys(suites).join(", ");
@@ -258,6 +426,9 @@ async function main() {
 
     if (suite.smokeTest) {
       await runProductionSmokeTest(checks);
+    }
+    if (suite.authRegistrationSmokeTest) {
+      await runAuthRegistrationSmokeTest(checks);
     }
   } catch (error) {
     status = "failed";
