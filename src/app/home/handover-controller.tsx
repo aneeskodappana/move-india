@@ -9,6 +9,10 @@ type ApiResponse = {
   handover?: SerializedHandover;
   error?: { message?: string };
 };
+type TodayResponse = {
+  today?: { handover: SerializedHandover | null };
+  error?: { message?: string };
+};
 
 export function HandoverController({
   collectionEventId,
@@ -49,6 +53,25 @@ export function HandoverController({
     }
   }
 
+  async function refreshStatus() {
+    setBusy(true);
+    setMessage(undefined);
+    try {
+      const response = await fetch("/api/today", { cache: "no-store" });
+      const body = await response.json() as TodayResponse;
+      if (!response.ok || !body.today) {
+        throw new Error(body.error?.message ?? "Could not refresh the handover.");
+      }
+      setHandover(body.today.handover);
+      setMessage("Handover status refreshed.");
+      router.refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not refresh the handover.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <ResidentHandoverCard
       busy={busy}
@@ -56,7 +79,7 @@ export function HandoverController({
       message={message}
       onMarkKeptOut={markKeptOut}
       onPhotoUrlChange={setPhotoUrl}
-      onRefresh={() => router.refresh()}
+      onRefresh={refreshStatus}
       photoUrl={photoUrl}
     />
   );

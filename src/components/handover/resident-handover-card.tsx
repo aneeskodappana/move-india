@@ -74,7 +74,7 @@ export function ResidentHandoverCard(props: ResidentHandoverCardProps) {
       </dl>
       <div className="grid gap-3 border-t border-stone-100 p-5 sm:grid-cols-2">
         {!collected ? <Link className="inline-flex min-h-12 items-center justify-center rounded-control border border-forest-200 px-4 text-sm font-black text-forest-900" href="/coordinator">Open collector screen</Link> : null}
-        <Button className={collected ? "w-full sm:col-span-2" : "w-full"} onClick={props.onRefresh} tone="secondary">Refresh status</Button>
+        <Button className={collected ? "w-full sm:col-span-2" : "w-full"} disabled={props.busy} onClick={props.onRefresh} tone="secondary">{props.busy ? "Refreshing…" : "Refresh status"}</Button>
       </div>
     </Card>
   );
