@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { StatusPill } from "@/components/ui/status-pill";
@@ -31,8 +32,8 @@ export function FoundationDashboard({ foundation }: FoundationDashboardProps) {
 
         <section className="grid items-end gap-10 py-14 lg:grid-cols-12 lg:py-20">
           <div className="lg:col-span-8">
-            <Badge tone="forest">M0 foundation online</Badge>
-            <h1 className="mt-6 max-w-4xl text-5xl font-black leading-none tracking-tight text-forest-950 sm:text-6xl lg:text-7xl">
+            <Badge tone="forest">Independent civic-utility prototype</Badge>
+            <h1 className="mt-6 max-w-4xl break-words text-4xl font-black leading-none tracking-tight text-forest-950 sm:text-6xl lg:text-7xl">
               Know what is collected. Prove you handed it over.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-stone-700 sm:text-xl">
@@ -40,6 +41,14 @@ export function FoundationDashboard({ foundation }: FoundationDashboardProps) {
               records, and personal payment receipts—designed around the person who actually lives
               at the address.
             </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link className="inline-flex min-h-12 items-center justify-center rounded-control bg-forest-900 px-5 text-sm font-black text-white" href="/sign-up">
+                Open resident demo
+              </Link>
+              <Link className="inline-flex min-h-12 items-center justify-center rounded-control border border-forest-200 bg-paper px-5 text-sm font-black text-forest-900" href="/coordinator">
+                Open collector demo
+              </Link>
+            </div>
           </div>
 
           <Card className="p-6 lg:col-span-4">
@@ -67,7 +76,7 @@ export function FoundationDashboard({ foundation }: FoundationDashboardProps) {
               </h2>
             </div>
             <p className="max-w-md text-sm leading-6 text-stone-700">
-              Feature logic begins after the scaffold passes every foundation gate.
+              The live demo runs on synthetic Kochi data from signup through the printable proof pack.
             </p>
           </div>
 

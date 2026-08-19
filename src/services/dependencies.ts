@@ -1,6 +1,6 @@
 import { getDatabaseClient } from "@/db/client";
 import { getAuthConfig } from "@/lib/auth-config";
-import { otpRateLimiter } from "@/lib/rate-limit";
+import { collectorRateLimiter, otpRateLimiter } from "@/lib/rate-limit";
 import { createOccupantRepository } from "@/repositories/occupant.repo";
 import { createPropertyRepository } from "@/repositories/property.repo";
 import { createCollectionEventRepository } from "@/repositories/collection-event.repo";
@@ -35,7 +35,10 @@ export function createApplicationServices() {
       devOtpCode: authConfig.devOtpCode,
     }),
     occupants: createOccupantService({ occupants, properties }),
-    collectorAuth: createCollectorAuthService(authConfig.devCollectorCode),
+    collectorAuth: createCollectorAuthService({
+      devCollectorCode: authConfig.devCollectorCode,
+      rateLimiter: collectorRateLimiter,
+    }),
     handovers: createHandoverService({ collectionEvents, handovers }),
     history: createHistoryService({
       collectionEvents,

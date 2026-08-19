@@ -12,8 +12,10 @@ export type RateLimiter = {
 export function createFixedWindowRateLimiter(options: {
   limit: number;
   windowMs: number;
+  message?: string;
 }): RateLimiter {
   const entries = new Map<string, RateLimitEntry>();
+  const message = options.message ?? "Too many OTP requests. Wait a few minutes and try again.";
 
   return {
     consume(key, now = Date.now()) {
@@ -23,11 +25,7 @@ export function createFixedWindowRateLimiter(options: {
         : current;
 
       if (entry.attempts >= options.limit) {
-        throw new AppError(
-          "rate_limited",
-          "Too many OTP requests. Wait a few minutes and try again.",
-          429,
-        );
+        throw new AppError("rate_limited", message, 429);
       }
 
       entry.attempts += 1;
@@ -38,12 +36,22 @@ export function createFixedWindowRateLimiter(options: {
 
 const globalRateLimit = globalThis as typeof globalThis & {
   vandiOtpRateLimiter?: RateLimiter;
+  vandiCollectorRateLimiter?: RateLimiter;
 };
 
 export const otpRateLimiter =
   globalRateLimit.vandiOtpRateLimiter ??
   createFixedWindowRateLimiter({ limit: 5, windowMs: 10 * 60 * 1000 });
 
+export const collectorRateLimiter =
+  globalRateLimit.vandiCollectorRateLimiter ??
+  createFixedWindowRateLimiter({
+    limit: 5,
+    windowMs: 10 * 60 * 1000,
+    message: "Too many collector login attempts. Wait a few minutes and try again.",
+  });
+
 if (process.env.NODE_ENV !== "production") {
   globalRateLimit.vandiOtpRateLimiter = otpRateLimiter;
+  globalRateLimit.vandiCollectorRateLimiter = collectorRateLimiter;
 }

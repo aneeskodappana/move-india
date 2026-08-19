@@ -369,6 +369,88 @@ const suites = {
     smokeTest: false,
     paymentHistorySmokeTest: true,
   },
+  M6: {
+    requiredFiles: [
+      "docs/security-checklist.md",
+      "docs/mobile-check.md",
+      ".env.example",
+      "src/lib/session-cookie.ts",
+      "src/lib/rate-limit.ts",
+      "src/lib/auth-config.ts",
+      "src/lib/http.ts",
+      "src/app/api/payments/pay/route.ts",
+      "src/components/resident/resident-nav.tsx",
+      "src/app/home/loading.tsx",
+      "src/app/history/loading.tsx",
+      "src/app/payments/loading.tsx",
+      "next.config.ts",
+      "tests/unit/lib/http.test.ts",
+      "tests/unit/lib/auth-config.test.ts",
+      "tests/unit/services/collector-auth.service.test.ts",
+    ],
+    fileAssertions: [
+      {
+        file: "src/lib/session-cookie.ts",
+        description: "Session cookie has the required security attributes",
+        verify: (content) =>
+          content.includes("httpOnly: true") &&
+          content.includes("secure: true") &&
+          content.includes('sameSite: "lax"'),
+      },
+      {
+        file: "src/app/api/payments/pay/route.ts",
+        description: "Mock payment route validates input before the service mutation",
+        verify: (content) =>
+          content.includes("parseOptionalJson") &&
+          content.includes("payCurrentMonthInputSchema") &&
+          content.indexOf("parseOptionalJson") < content.indexOf("payCurrentMonth"),
+      },
+      {
+        file: "src/services/collector-auth.service.ts",
+        description: "Collector login consumes the rate-limit stub",
+        verify: (content) => content.includes("rateLimiter.consume") && content.includes("collector:"),
+      },
+      {
+        file: "src/lib/auth-config.ts",
+        description: "Deployed environments reject the example session secret",
+        verify: (content) =>
+          content.includes("EXAMPLE_SESSION_SECRET") && content.includes("must not use the example value"),
+      },
+      {
+        file: "next.config.ts",
+        description: "Security headers are configured for every path",
+        verify: (content) =>
+          content.includes("X-Content-Type-Options") &&
+          content.includes("X-Frame-Options") &&
+          content.includes("Referrer-Policy") &&
+          content.includes("Permissions-Policy"),
+      },
+      {
+        file: "src/components/resident/resident-nav.tsx",
+        description: "Resident nav is a three-column wrap-safe control row",
+        verify: (content) => content.includes("grid-cols-3") && content.includes("min-h-12"),
+      },
+      {
+        file: "docs/security-checklist.md",
+        description: "The §8.5 checklist is recorded as complete",
+        verify: (content) =>
+          content.includes("Every API route validates input") &&
+          content.includes("Rate-limit stub on OTP/login") &&
+          content.includes("| Done |"),
+      },
+    ],
+    commands: [
+      { label: "Lint", command: "npm", args: ["run", "lint"] },
+      { label: "Strict type check", command: "npm", args: ["run", "typecheck"] },
+      { label: "Security, polish, and regression tests", command: "npm", args: ["run", "test"] },
+      { label: "Production build", command: "npm", args: ["run", "build"] },
+      { label: "Live development database regression verification", command: "npm", args: ["run", "db:verify:m1"] },
+      { label: "Production dependency audit", command: "npm", args: ["audit", "--omit=dev", "--audit-level=high"] },
+    ],
+    migrationDirectoryMustBeClean: true,
+    smokeTest: false,
+    securityPolishSmokeTest: true,
+  },
 };
 
 function record(checks, label, status, detail) {
@@ -938,6 +1020,69 @@ async function runPaymentHistorySmokeTest(checks) {
   }
 }
 
+async function runSecurityPolishSmokeTest(checks) {
+  const port = 3194;
+  const origin = `http://127.0.0.1:${port}`;
+  const serverOutput = [];
+  const server = spawn(
+    process.execPath,
+    [path.join(projectRoot, "node_modules/next/dist/bin/next"), "start", "-p", String(port)],
+    { cwd: projectRoot, env: { ...process.env, PORT: String(port) }, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  server.stdout.on("data", (chunk) => serverOutput.push(chunk.toString()));
+  server.stderr.on("data", (chunk) => serverOutput.push(chunk.toString()));
+
+  try {
+    let landing;
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      try {
+        landing = await fetch(`${origin}/`);
+        if (landing.ok) break;
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+    }
+    if (!landing?.ok) throw new Error(`M6 production server did not become ready. ${serverOutput.join("")}`);
+
+    const landingHtml = await landing.text();
+    if (!landingHtml.includes("Know what is collected") || !landingHtml.includes("Independent hackathon prototype")) {
+      throw new Error("Landing page is missing the prototype disclosure.");
+    }
+    const requiredHeaders = ["x-content-type-options", "x-frame-options", "referrer-policy", "permissions-policy"];
+    const missingHeader = requiredHeaders.find((header) => !landing.headers.get(header));
+    if (missingHeader) throw new Error(`Missing security header: ${missingHeader}.`);
+
+    const unauthenticated = await fetch(`${origin}/api/payments/pay`, { method: "POST" });
+    const unauthenticatedBody = await unauthenticated.json();
+    if (unauthenticated.status !== 401 || unauthenticatedBody.error?.code !== "unauthorized") {
+      throw new Error("Unauthenticated payment mutation was not denied.");
+    }
+
+    const phone = "+91-00000-31940";
+    let limited;
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      limited = await fetch(`${origin}/api/auth/request-otp`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+    }
+    const limitedBody = await limited.json();
+    if (limited.status !== 429 || limitedBody.error?.code !== "rate_limited") {
+      throw new Error("OTP rate-limit stub did not return 429 after repeated requests.");
+    }
+
+    record(
+      checks,
+      "Live security and polish HTTP journey",
+      "passed",
+      "landing disclosure + security headers + unauthenticated denial + OTP 429",
+    );
+  } finally {
+    server.kill("SIGTERM");
+  }
+}
+
 async function main() {
   if (!milestone || !(milestone in suites)) {
     const available = Object.keys(suites).join(", ");
@@ -1006,6 +1151,9 @@ async function main() {
     }
     if (suite.paymentHistorySmokeTest) {
       await runPaymentHistorySmokeTest(checks);
+    }
+    if (suite.securityPolishSmokeTest) {
+      await runSecurityPolishSmokeTest(checks);
     }
   } catch (error) {
     status = "failed";

@@ -10,5 +10,6 @@ describe("FoundationDashboard", () => {
     expect(screen.getByRole("heading", { name: "Know what is collected. Prove you handed it over." })).toBeInTheDocument();
     expect(screen.getAllByRole("listitem")).toHaveLength(4);
     expect(screen.getByText("No live government systems, telecom delivery, payments, or personal data.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open resident demo" })).toHaveAttribute("href", "/sign-up");
   });
 });

@@ -26,4 +26,7 @@ export const receiptLookupSchema = z.object({
   receiptId: receiptIdSchema,
 });
 
+export const payCurrentMonthInputSchema = z.object({}).strict();
+
 export type ReceiptLookup = z.infer<typeof receiptLookupSchema>;
+export type PayCurrentMonthInput = z.infer<typeof payCurrentMonthInputSchema>;

@@ -11,6 +11,8 @@ Vandi is an independent hackathon prototype for occupant-level waste-collection 
 - Vitest and React Testing Library
 - Layer rule: route handler → service → repository → database
 
+Live demo: [https://vandi-eight.vercel.app](https://vandi-eight.vercel.app)
+
 ## Local setup
 
 1. Install dependencies with `npm install`.
@@ -33,6 +35,7 @@ Milestones also have a promotion gate. A milestone must pass its verifier before
 npm run verify:m0
 npm run verify:m1
 npm run verify:m5
+npm run verify:m6
 ```
 
 See [the milestone verification flow](docs/milestone-verification.md) for the verifier contract and current gate status.

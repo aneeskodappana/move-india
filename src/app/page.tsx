@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
+import { FoundationDashboard } from "@/components/landing/foundation-dashboard";
+import { appFoundation } from "@/lib/app-foundation";
 
 export default function HomePage() {
-  redirect("/sign-up");
+  return <FoundationDashboard foundation={appFoundation} />;
 }

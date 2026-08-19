@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { errorResponse, parseJson } from "@/lib/http";
+import { errorResponse, parseJson, requestClientKey } from "@/lib/http";
 import { issueSessionToken } from "@/lib/session";
 import {
   SESSION_COOKIE_NAME,
@@ -15,8 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     const input = await parseJson(request, verifyOtpInputSchema);
     const services = createApplicationServices();
-    const forwardedAddress = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-    const identity = await services.auth.verifyOtp(input, forwardedAddress || "local-demo");
+    const identity = await services.auth.verifyOtp(input, requestClientKey(request));
     const token = issueSessionToken(identity, services.authConfig.sessionSecret, {
       ttlSeconds: SESSION_TTL_SECONDS,
     });

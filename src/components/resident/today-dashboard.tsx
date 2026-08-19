@@ -21,7 +21,7 @@ export function TodayDashboard({ today, handoverControl }: { today: TodayView; h
               {today.collection ? (
                 <>
                   <p className="mt-10 text-sm font-bold uppercase tracking-[0.18em] text-marigold-300">Put out today</p>
-                  <h1 className="mt-3 text-5xl font-black leading-none tracking-tight sm:text-6xl">{today.collection.materialType}</h1>
+                  <h1 className="mt-3 break-words text-3xl font-black leading-none tracking-tight sm:text-5xl lg:text-6xl">{today.collection.materialType}</h1>
                   <div className="mt-8 border-t border-forest-700 pt-6">
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-forest-200">Collection window</p>
                     <p className="mt-2 text-3xl font-black text-marigold-300">{today.collection.timeWindow}</p>
@@ -30,7 +30,7 @@ export function TodayDashboard({ today, handoverControl }: { today: TodayView; h
               ) : (
                 <>
                   <p className="mt-10 text-sm font-bold uppercase tracking-[0.18em] text-forest-200">Today’s schedule</p>
-                  <h1 className="mt-3 text-5xl font-black leading-none tracking-tight">No collection scheduled.</h1>
+                  <h1 className="mt-3 break-words text-3xl font-black leading-none tracking-tight sm:text-5xl">No collection scheduled.</h1>
                 </>
               )}
             </div>

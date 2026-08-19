@@ -4,7 +4,7 @@ import {
   COLLECTOR_SESSION_TTL_SECONDS,
   issueCollectorSessionToken,
 } from "@/lib/collector-session";
-import { errorResponse, parseJson } from "@/lib/http";
+import { errorResponse, parseJson, requestClientKey } from "@/lib/http";
 import { sessionCookieOptions } from "@/lib/session-cookie";
 import { collectorLoginInputSchema } from "@/schemas/coordinator.schema";
 import { createApplicationServices } from "@/services/dependencies";
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     const input = await parseJson(request, collectorLoginInputSchema);
     const services = createApplicationServices();
-    services.collectorAuth.verifyCode(input);
+    services.collectorAuth.verifyCode(input, requestClientKey(request));
     const token = issueCollectorSessionToken(services.authConfig.sessionSecret, {
       ttlSeconds: COLLECTOR_SESSION_TTL_SECONDS,
     });
