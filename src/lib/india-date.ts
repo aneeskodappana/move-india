@@ -20,3 +20,26 @@ export function formatScheduleDate(isoDate: string): string {
     month: "long",
   }).format(new Date(`${isoDate}T00:00:00+05:30`));
 }
+
+export function indiaYearMonth(now = new Date()): string {
+  return indiaIsoDate(now).slice(0, 7);
+}
+
+export function formatMonthLabel(month: string): string {
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${month}-01T00:00:00+05:30`));
+}
+
+export function formatRecordedAt(timestamp: string): string {
+  return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(timestamp));
+}

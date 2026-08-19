@@ -32,6 +32,7 @@ Milestones also have a promotion gate. A milestone must pass its verifier before
 ```sh
 npm run verify:m0
 npm run verify:m1
+npm run verify:m5
 ```
 
 See [the milestone verification flow](docs/milestone-verification.md) for the verifier contract and current gate status.

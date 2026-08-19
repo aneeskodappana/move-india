@@ -27,3 +27,18 @@ export function createSelectOneHarness<T>(rows: T[]) {
     limit,
   };
 }
+
+export function createSelectListHarness<T>(rows: T[]) {
+  const orderBy = vi.fn().mockResolvedValue(rows);
+  const where = vi.fn().mockReturnValue({ orderBy });
+  const from = vi.fn().mockReturnValue({ where });
+  const select = vi.fn().mockReturnValue({ from });
+
+  return {
+    database: { select } as unknown as DatabaseClient,
+    select,
+    from,
+    where,
+    orderBy,
+  };
+}

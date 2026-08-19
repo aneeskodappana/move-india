@@ -1,4 +1,4 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import type { DatabaseClient } from "@/db/client";
 import { withDatabaseRetry } from "@/db/retry";
 import {
@@ -61,6 +61,15 @@ export function createHandoverRepository(database: DatabaseClient) {
         .where(eq(handoverLogs.id, id))
         .returning();
       return requireInsertedRow(rows, "Handover log");
+    },
+    async listByOccupant(occupantId: string): Promise<HandoverLog[]> {
+      return withDatabaseRetry("Handover occupant lookup", () =>
+        database
+          .select()
+          .from(handoverLogs)
+          .where(eq(handoverLogs.occupantId, occupantId))
+          .orderBy(desc(handoverLogs.residentMarkedAt)),
+      );
     },
     async listPendingByDate(eventDate: string): Promise<PendingCollectorHandover[]> {
       return withDatabaseRetry("Pending handover lookup", () =>

@@ -1,7 +1,7 @@
 import type { HandoverLog, NewHandoverLog } from "@/db/schema";
 import { createHandoverRepository } from "@/repositories/handover.repo";
 import type { DatabaseClient } from "@/db/client";
-import { createInsertHarness, createSelectOneHarness } from "../../helpers/mock-database";
+import { createInsertHarness, createSelectListHarness, createSelectOneHarness } from "../../helpers/mock-database";
 
 const expected: HandoverLog = {
   id: "50000000-0000-4000-8000-000000000001",
@@ -46,6 +46,14 @@ describe("HandoverRepository", () => {
     const database = { update } as unknown as DatabaseClient;
     await expect(createHandoverRepository(database).confirmCollected(expected.id, collectorMarkedAt)).resolves.toEqual(collected);
     expect(set).toHaveBeenCalledWith({ collectorMarkedAt, status: "collected" });
+  });
+
+  it("lists an occupant's handover logs newest first", async () => {
+    const harness = createSelectListHarness([expected]);
+    await expect(createHandoverRepository(harness.database).listByOccupant(expected.occupantId)).resolves.toEqual([
+      expected,
+    ]);
+    expect(harness.orderBy).toHaveBeenCalledOnce();
   });
 
   it("lists pending resident-marked handovers for a date", async () => {

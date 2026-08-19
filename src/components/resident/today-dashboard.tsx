@@ -1,4 +1,5 @@
 import { BroadcastSimulator } from "@/components/broadcast/broadcast-simulator";
+import { ResidentNav } from "@/components/resident/resident-nav";
 import { Card } from "@/components/ui/card";
 import { formatScheduleDate } from "@/lib/india-date";
 import type { TodayView } from "@/services/today.service";
@@ -8,13 +9,7 @@ export function TodayDashboard({ today, handoverControl }: { today: TodayView; h
   return (
     <main className="min-h-screen bg-canvas px-5 py-6 sm:px-8 lg:px-12">
       <div className="mx-auto max-w-6xl">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-forest-200 pb-5">
-          <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-control bg-forest-900 font-black text-white">V</span>
-            <div><p className="font-black text-forest-950">Vandi</p><p className="text-xs text-stone-700">Resident Today</p></div>
-          </div>
-          <div className="text-right"><p className="text-sm font-black text-forest-950">{today.resident.name}</p><p className="text-xs text-stone-500">{today.property.ward}</p></div>
-        </header>
+        <ResidentNav current="today" location={today.property.ward} name={today.resident.name} title="Resident Today" />
 
         <section className="grid gap-6 py-8 lg:grid-cols-[1.15fr_0.85fr] lg:py-12">
           <div className="overflow-hidden rounded-card bg-forest-950 text-white shadow-card">

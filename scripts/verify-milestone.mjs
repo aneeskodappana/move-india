@@ -301,6 +301,74 @@ const suites = {
     smokeTest: false,
     handoverSmokeTest: true,
   },
+  M5: {
+    requiredFiles: [
+      "src/services/payment.service.ts",
+      "src/services/history.service.ts",
+      "src/schemas/history.schema.ts",
+      "src/app/api/payments/route.ts",
+      "src/app/api/payments/pay/route.ts",
+      "src/app/api/payments/receipts/[receiptId]/route.ts",
+      "src/app/api/history/route.ts",
+      "src/app/history/page.tsx",
+      "src/app/payments/page.tsx",
+      "src/app/payments/receipts/[receiptId]/page.tsx",
+      "src/components/resident/history-proof-pack.tsx",
+      "src/components/resident/payment-ledger.tsx",
+      "src/components/resident/payment-receipt.tsx",
+      "tests/unit/services/payment.service.test.ts",
+      "tests/unit/services/history.service.test.ts",
+      "tests/unit/components/history-proof-pack.test.tsx",
+      "tests/unit/components/payment-components.test.tsx",
+    ],
+    fileAssertions: [
+      {
+        file: "tests/unit/services/payment.service.test.ts",
+        description: "Critical cross-occupant receipt denial is covered",
+        verify: (content) =>
+          content.includes("blocks Anjali from viewing Ravi's receipt") &&
+          content.includes('code: "forbidden"') &&
+          content.includes("findById).not.toHaveBeenCalled"),
+      },
+      {
+        file: "src/services/payment.service.ts",
+        description: "Receipt ownership is checked before the receipt is returned",
+        verify: (content) =>
+          content.includes("payment.occupantId !== resident.occupantId") &&
+          content.indexOf("payment.occupantId !== resident.occupantId") < content.indexOf("serializePayment(payment)"),
+      },
+      {
+        file: "src/app/api/payments/pay/route.ts",
+        description: "Mock payment route authorizes the resident and delegates to the service layer",
+        verify: (content) =>
+          content.includes("requireRequestSession") && content.includes("services.payments.payCurrentMonth"),
+      },
+      {
+        file: "src/components/resident/payment-ledger.tsx",
+        description: "Payments screen is unmistakably labeled as mock UPI",
+        verify: (content) => content.includes("mock UPI") && content.includes("Pay ₹"),
+      },
+      {
+        file: "src/components/resident/history-proof-pack.tsx",
+        description: "History proof pack combines handover timestamps and receipts",
+        verify: (content) =>
+          content.includes("Proof pack") &&
+          content.includes("Collector confirmation missing") &&
+          content.includes("Receipt "),
+      },
+    ],
+    commands: [
+      { label: "Lint", command: "npm", args: ["run", "lint"] },
+      { label: "Strict type check", command: "npm", args: ["run", "typecheck"] },
+      { label: "Payment, history, repository, and regression tests", command: "npm", args: ["run", "test"] },
+      { label: "Production build", command: "npm", args: ["run", "build"] },
+      { label: "Live development database regression verification", command: "npm", args: ["run", "db:verify:m1"] },
+      { label: "Production dependency audit", command: "npm", args: ["audit", "--omit=dev", "--audit-level=high"] },
+    ],
+    migrationDirectoryMustBeClean: true,
+    smokeTest: false,
+    paymentHistorySmokeTest: true,
+  },
 };
 
 function record(checks, label, status, detail) {
@@ -732,6 +800,144 @@ async function runHandoverSmokeTest(checks) {
   }
 }
 
+async function runPaymentHistorySmokeTest(checks) {
+  const port = 3195;
+  const origin = `http://127.0.0.1:${port}`;
+  const serverOutput = [];
+  const server = spawn(
+    process.execPath,
+    [path.join(projectRoot, "node_modules/next/dist/bin/next"), "start", "-p", String(port)],
+    { cwd: projectRoot, env: { ...process.env, PORT: String(port) }, stdio: ["ignore", "pipe", "pipe"] },
+  );
+  server.stdout.on("data", (chunk) => serverOutput.push(chunk.toString()));
+  server.stderr.on("data", (chunk) => serverOutput.push(chunk.toString()));
+
+  try {
+    let ready = false;
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      try {
+        const response = await fetch(`${origin}/sign-up`, { redirect: "manual" });
+        if (response.ok) { ready = true; break; }
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+    }
+    if (!ready) throw new Error(`M5 production server did not become ready. ${serverOutput.join("")}`);
+
+    const anjaliOtp = await fetch(`${origin}/api/auth/request-otp`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phone: "+91-00000-00002" }),
+    }).then((response) => response.json());
+    const anjaliResponse = await fetch(`${origin}/api/auth/verify-otp`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phone: "+91-00000-00002", name: "Anjali Nair", otp: anjaliOtp.devOtp }),
+    });
+    const anjaliCookie = (anjaliResponse.headers.get("set-cookie") ?? "").split(";")[0];
+    if (!anjaliResponse.ok || !anjaliCookie) throw new Error("Seeded Anjali session was not restored.");
+
+    const historyResponse = await fetch(`${origin}/api/history?month=2026-08`, { headers: { cookie: anjaliCookie } });
+    const historyBody = await historyResponse.json();
+    const gap = historyBody.history?.collections?.find((entry) => entry.eventDate === "2026-08-13");
+    const paidReceipt = historyBody.history?.payments?.find((payment) => payment.status === "paid");
+    if (
+      !historyResponse.ok ||
+      historyBody.history?.resident?.name !== "Anjali Nair" ||
+      !gap?.materialType ||
+      gap?.handover?.status !== "kept_out" ||
+      gap?.handover?.collectorMarkedAt !== null ||
+      !paidReceipt?.receiptId
+    ) {
+      throw new Error("Anjali proof pack did not include the missing-collector gap and a paid receipt.");
+    }
+
+    const historyPage = await fetch(`${origin}/history`, { headers: { cookie: anjaliCookie } });
+    const historyHtml = await historyPage.text();
+    const expectedHistory = ["Proof pack", "Food waste", "Collector confirmation missing", "Print proof pack", paidReceipt.receiptId];
+    if (!historyPage.ok || !expectedHistory.every((content) => historyHtml.includes(content))) {
+      throw new Error("History HTML is missing proof-pack content.");
+    }
+
+    let verifiedCookie;
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      const suffix = String((Date.now() + process.pid + attempt) % 100_000).padStart(5, "0");
+      const phone = `+91-00000-${suffix}`;
+      const otpBody = await fetch(`${origin}/api/auth/request-otp`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone }),
+      }).then((response) => response.json());
+      const verifyResponse = await fetch(`${origin}/api/auth/verify-otp`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ phone, name: "M5 Journey Verifier", otp: otpBody.devOtp }),
+      });
+      const verifyBody = await verifyResponse.json();
+      if (verifyBody.next === "/join-property") {
+        verifiedCookie = (verifyResponse.headers.get("set-cookie") ?? "").split(";")[0];
+        break;
+      }
+    }
+    if (!verifiedCookie) throw new Error("Could not allocate an unused synthetic M5 phone.");
+
+    const propertiesBody = await fetch(`${origin}/api/properties`, { headers: { cookie: verifiedCookie } }).then((response) => response.json());
+    const property = propertiesBody.properties?.[0];
+    if (!property?.id) throw new Error("Could not find a synthetic property for M5 payment verification.");
+
+    const registerResponse = await fetch(`${origin}/api/occupants/register`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie: verifiedCookie },
+      body: JSON.stringify({ propertyId: property.id, role: "tenant", moveInDate: "2026-08-01" }),
+    });
+    const registeredCookie = (registerResponse.headers.get("set-cookie") ?? "").split(";")[0];
+    if (registerResponse.status !== 201 || !registeredCookie) throw new Error("M5 synthetic resident registration failed.");
+
+    const ledgerResponse = await fetch(`${origin}/api/payments`, { headers: { cookie: registeredCookie } });
+    const ledgerBody = await ledgerResponse.json();
+    if (!ledgerResponse.ok || ledgerBody.ledger?.current?.status !== "pending" || ledgerBody.ledger?.current?.amountInr !== 80) {
+      throw new Error("Current-month payment ledger was not created as a pending ₹80 fee.");
+    }
+
+    const payResponse = await fetch(`${origin}/api/payments/pay`, { method: "POST", headers: { cookie: registeredCookie } });
+    const payBody = await payResponse.json();
+    if (!payResponse.ok || payBody.payment?.status !== "paid" || !payBody.payment?.paidAt || !payBody.payment?.receiptId) {
+      throw new Error("Mock UPI payment did not persist a paid receipt.");
+    }
+
+    const ownReceipt = await fetch(`${origin}/api/payments/receipts/${payBody.payment.receiptId}`, {
+      headers: { cookie: registeredCookie },
+    });
+    const ownReceiptBody = await ownReceipt.json();
+    if (!ownReceipt.ok || ownReceiptBody.receipt?.payment?.receiptId !== payBody.payment.receiptId) {
+      throw new Error("Paid resident could not load their own digital receipt.");
+    }
+
+    const forbiddenReceipt = await fetch(`${origin}/api/payments/receipts/${paidReceipt.receiptId}`, {
+      headers: { cookie: registeredCookie },
+    });
+    const forbiddenBody = await forbiddenReceipt.json();
+    if (forbiddenReceipt.status !== 403 || forbiddenBody.error?.code !== "forbidden") {
+      throw new Error("Cross-occupant receipt access was not denied.");
+    }
+
+    const paymentsPage = await fetch(`${origin}/payments`, { headers: { cookie: registeredCookie } });
+    const paymentsHtml = await paymentsPage.text();
+    if (!paymentsPage.ok || !paymentsHtml.includes(payBody.payment.receiptId) || !paymentsHtml.includes("mock UPI")) {
+      throw new Error("Payments HTML did not render the mock receipt and disclosure.");
+    }
+
+    record(
+      checks,
+      "Live payment ledger and history HTTP journey",
+      "passed",
+      "Anjali proof pack + gap → new resident mock UPI → receipt → cross-occupant denial",
+    );
+  } finally {
+    server.kill("SIGTERM");
+  }
+}
+
 async function main() {
   if (!milestone || !(milestone in suites)) {
     const available = Object.keys(suites).join(", ");
@@ -797,6 +1003,9 @@ async function main() {
     }
     if (suite.handoverSmokeTest) {
       await runHandoverSmokeTest(checks);
+    }
+    if (suite.paymentHistorySmokeTest) {
+      await runPaymentHistorySmokeTest(checks);
     }
   } catch (error) {
     status = "failed";

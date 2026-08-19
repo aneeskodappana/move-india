@@ -38,3 +38,15 @@ button {
   outline: 3px solid #d99a22;
   outline-offset: 3px;
 }
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .print-hidden,
+  nav,
+  button {
+    display: none !important;
+  }
+}

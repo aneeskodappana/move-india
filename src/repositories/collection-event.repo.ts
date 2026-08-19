@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { DatabaseClient } from "@/db/client";
 import { withDatabaseRetry } from "@/db/retry";
 import {
@@ -34,6 +34,15 @@ export function createCollectionEventRepository(database: DatabaseClient) {
         database.select().from(collectionEvents).where(eq(collectionEvents.id, id)).limit(1),
       );
       return rows[0] ?? null;
+    },
+    async listByProperty(propertyId: string): Promise<CollectionEvent[]> {
+      return withDatabaseRetry("Collection-event property lookup", () =>
+        database
+          .select()
+          .from(collectionEvents)
+          .where(eq(collectionEvents.propertyId, propertyId))
+          .orderBy(desc(collectionEvents.eventDate)),
+      );
     },
   };
 }

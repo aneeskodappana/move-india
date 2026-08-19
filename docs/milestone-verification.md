@@ -31,7 +31,8 @@ npm run verify:m1
 npm run verify:m2
 npm run verify:m3
 npm run verify:m4
-npm run verify:milestone -- M4
+npm run verify:m5
+npm run verify:milestone -- M5
 ```
 
 Each later milestone adds its own suite before that milestone can be marked complete. The status record below is updated only after the corresponding suite passes.
@@ -43,5 +44,8 @@ Each later milestone adds its own suite before that milestone can be marked comp
 | M2 · Auth and registration | Passed · 2026-08-19 · `24de594` | M3 unlocked |
 | M3 · Broadcast engine | Passed · 2026-08-19 · `d2c49d1` | M4 unlocked |
 | M4 · Handover confirmation | Passed · 2026-08-19 · `60b234b` | M5 unlocked |
+| M5 · Payments and history | Passed · 2026-08-19 | M6 unlocked |
 
 The M4 report contains 25 passing checks: strict static gates, 62 tests, production build, live database regression, clean production dependency audit, and a live HTTP journey that proves cross-property denial before completing the resident → collector → resident record. Browser verification also completed the flow at mobile and desktop breakpoints with no horizontal overflow or framework error overlay; it caught and drove the resident refresh regression fix before the final verifier run.
+
+The M5 report contains 29 passing checks: strict static gates, 79 tests, production build, live database regression, clean production dependency audit, and a live HTTP journey that proves Anjali’s proof pack includes the missing-collector gap and a paid receipt, then creates a new resident, records a mock UPI payment, issues a digital receipt, and denies cross-occupant receipt access.
