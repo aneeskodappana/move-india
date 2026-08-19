@@ -470,11 +470,11 @@ const suites = {
       },
       {
         file: "docs/demo-script.md",
-        description: "Demo script follows the four-part §11 outline",
+        description: "Demo script is a one-minute product walkthrough",
         verify: (content) =>
-          content.includes("Cold open") &&
-          content.includes("Why it happens") &&
-          content.includes("The journey") &&
+          content.includes("Open resident demo") &&
+          content.includes("Proof pack") &&
+          content.includes("Payments") &&
           content.includes("vandi-eight.vercel.app"),
       },
     ],
@@ -484,7 +484,8 @@ const suites = {
       { label: "Regression tests", command: "npm", args: ["run", "test"] },
       { label: "Production dependency audit", command: "npm", args: ["audit", "--omit=dev", "--audit-level=high"] },
     ],
-    videoDurationMaxSeconds: 180,
+    videoDurationMinSeconds: 35,
+    videoDurationMaxSeconds: 70,
     smokeTest: false,
   },
 };
@@ -1198,11 +1199,12 @@ async function main() {
         { cwd: projectRoot, encoding: "utf8" },
       );
       const duration = Number.parseFloat(probe.stdout.trim());
-      if (!Number.isFinite(duration) || duration <= 0 || duration > suite.videoDurationMaxSeconds) {
-        record(checks, "Demo video is within 3 minutes", "failed", probe.stdout.trim() || probe.stderr.trim());
-        throw new Error("Demo video duration is missing or longer than 3 minutes.");
+      const tooShort = suite.videoDurationMinSeconds && duration < suite.videoDurationMinSeconds;
+      if (!Number.isFinite(duration) || duration <= 0 || duration > suite.videoDurationMaxSeconds || tooShort) {
+        record(checks, "Demo video is a one-minute walkthrough", "failed", probe.stdout.trim() || probe.stderr.trim());
+        throw new Error("Demo video duration is missing or outside the one-minute walkthrough window.");
       }
-      record(checks, "Demo video is within 3 minutes", "passed", `${duration.toFixed(1)}s`);
+      record(checks, "Demo video is a one-minute walkthrough", "passed", `${duration.toFixed(1)}s`);
     }
   } catch (error) {
     status = "failed";

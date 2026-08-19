@@ -56,4 +56,4 @@ The M5 report contains 29 passing checks: strict static gates, 79 tests, product
 
 The M6 report contains 31 passing checks: the §8.5 security record, wrap-safe resident chrome, loading skeletons, production security headers, collector rate-limiting, rejection of the example session secret, 84 tests, a clean production audit, and a live HTTP journey that proves landing disclosure, unauthenticated mutation denial, and OTP 429. Production is live at https://vandi-eight.vercel.app.
 
-The M7 report confirms the finalized submission write-up, the four-part demo script, and a 176.9-second walkthrough video assembled from live production screenshots plus narration.
+The M7 report confirms the finalized submission write-up and a silent one-minute product walkthrough recorded from the live app (landing → DEV sign-in → Today → History proof pack → receipt).
