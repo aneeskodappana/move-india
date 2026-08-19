@@ -191,6 +191,59 @@ const suites = {
     smokeTest: false,
     authRegistrationSmokeTest: true,
   },
+  M3: {
+    requiredFiles: [
+      "src/lib/india-date.ts",
+      "src/services/broadcast.service.ts",
+      "src/services/today.service.ts",
+      "src/app/api/today/route.ts",
+      "src/app/home/page.tsx",
+      "src/components/resident/today-dashboard.tsx",
+      "src/components/broadcast/broadcast-simulator.tsx",
+      "tests/unit/services/broadcast.service.test.ts",
+      "tests/unit/services/today.service.test.ts",
+      "tests/unit/components/today-dashboard.test.tsx",
+    ],
+    fileAssertions: [
+      {
+        file: "src/components/broadcast/broadcast-simulator.tsx",
+        description: "Broadcast simulator exposes app, SMS, and WhatsApp channels",
+        verify: (content) =>
+          content.includes('app: "App push"') &&
+          content.includes('sms: "SMS"') &&
+          content.includes('whatsapp: "WhatsApp"'),
+      },
+      {
+        file: "src/app/api/today/route.ts",
+        description: "Today API authorizes the resident and delegates to the service layer",
+        verify: (content) =>
+          content.includes("requireRequestSession") && content.includes("services.today.getForResident"),
+      },
+      {
+        file: "src/services/today.service.ts",
+        description: "Today service resolves property, route, and collection-event repositories",
+        verify: (content) =>
+          content.includes("properties.findById") &&
+          content.includes("routes.findById") &&
+          content.includes("collectionEvents.findByPropertyAndDate"),
+      },
+    ],
+    commands: [
+      { label: "Lint", command: "npm", args: ["run", "lint"] },
+      { label: "Strict type check", command: "npm", args: ["run", "typecheck"] },
+      { label: "Today, broadcast, repository, and regression tests", command: "npm", args: ["run", "test"] },
+      { label: "Production build", command: "npm", args: ["run", "build"] },
+      { label: "Live development database regression verification", command: "npm", args: ["run", "db:verify:m1"] },
+      {
+        label: "Production dependency audit",
+        command: "npm",
+        args: ["audit", "--omit=dev", "--audit-level=high"],
+      },
+    ],
+    migrationDirectoryMustBeClean: true,
+    smokeTest: false,
+    todayBroadcastSmokeTest: true,
+  },
 };
 
 function record(checks, label, status, detail) {
@@ -355,7 +408,10 @@ async function runAuthRegistrationSmokeTest(checks) {
     }
     const homeResponse = await fetch(`${origin}/home`, { headers: { cookie: registeredCookie } });
     const homeHtml = await homeResponse.text();
-    if (!homeResponse.ok || !homeHtml.includes("Registration complete")) {
+    if (
+      !homeResponse.ok ||
+      (!homeHtml.includes("Registration complete") && !homeHtml.includes("Resident Today"))
+    ) {
       throw new Error("Registered resident home did not render the completed state.");
     }
 
@@ -364,6 +420,99 @@ async function runAuthRegistrationSmokeTest(checks) {
       "Live auth and registration HTTP journey",
       "passed",
       "DEV OTP → signed cookie → property discovery → occupant insert → registered home",
+    );
+  } finally {
+    server.kill("SIGTERM");
+  }
+}
+
+async function runTodayBroadcastSmokeTest(checks) {
+  const port = 3197;
+  const origin = `http://127.0.0.1:${port}`;
+  const serverOutput = [];
+  const server = spawn(
+    process.execPath,
+    [path.join(projectRoot, "node_modules/next/dist/bin/next"), "start", "-p", String(port)],
+    {
+      cwd: projectRoot,
+      env: { ...process.env, PORT: String(port) },
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+  server.stdout.on("data", (chunk) => serverOutput.push(chunk.toString()));
+  server.stderr.on("data", (chunk) => serverOutput.push(chunk.toString()));
+
+  try {
+    let ready = false;
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      try {
+        const response = await fetch(`${origin}/sign-up`, { redirect: "manual" });
+        if (response.ok) {
+          ready = true;
+          break;
+        }
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 250));
+      }
+    }
+    if (!ready) throw new Error(`M3 production server did not become ready. ${serverOutput.join("")}`);
+
+    const phone = "+91-00000-00002";
+    const otpResponse = await fetch(`${origin}/api/auth/request-otp`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phone }),
+    });
+    const otpBody = await otpResponse.json();
+    if (!otpResponse.ok || otpBody.mode !== "DEV MODE" || !otpBody.devOtp) {
+      throw new Error("Seeded resident DEV OTP request failed.");
+    }
+
+    const verifyResponse = await fetch(`${origin}/api/auth/verify-otp`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ phone, name: "Anjali Nair", otp: otpBody.devOtp }),
+    });
+    const verifyBody = await verifyResponse.json();
+    const cookie = (verifyResponse.headers.get("set-cookie") ?? "").split(";")[0];
+    if (!verifyResponse.ok || verifyBody.next !== "/home" || !cookie) {
+      throw new Error("Seeded resident sign-in did not restore a registered session.");
+    }
+
+    const todayResponse = await fetch(`${origin}/api/today`, { headers: { cookie } });
+    const todayBody = await todayResponse.json();
+    const today = todayBody.today;
+    if (
+      !todayResponse.ok ||
+      today?.resident?.name !== "Anjali Nair" ||
+      today?.collection?.materialType !== "Food waste" ||
+      today?.collection?.timeWindow !== "7:00–8:30 AM" ||
+      today?.route?.name !== "Demo Elamkulam North" ||
+      !today?.message?.includes("Food waste")
+    ) {
+      throw new Error("Today API did not resolve the seeded route and collection window.");
+    }
+
+    const homeResponse = await fetch(`${origin}/home`, { headers: { cookie } });
+    const homeHtml = await homeResponse.text();
+    const expectedContent = [
+      "Resident Today",
+      "Food waste",
+      "7:00–8:30 AM",
+      "App push",
+      "SMS",
+      "WhatsApp",
+      "channel delivery is simulated",
+    ];
+    if (!homeResponse.ok || !expectedContent.every((content) => homeHtml.includes(content))) {
+      throw new Error("Resident Today HTML is missing schedule or channel-preview content.");
+    }
+
+    record(
+      checks,
+      "Live resident Today and broadcast HTTP journey",
+      "passed",
+      "seeded session → property + route + event → canonical message → 3 channel controls",
     );
   } finally {
     server.kill("SIGTERM");
@@ -429,6 +578,9 @@ async function main() {
     }
     if (suite.authRegistrationSmokeTest) {
       await runAuthRegistrationSmokeTest(checks);
+    }
+    if (suite.todayBroadcastSmokeTest) {
+      await runTodayBroadcastSmokeTest(checks);
     }
   } catch (error) {
     status = "failed";

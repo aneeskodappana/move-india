@@ -1,10 +1,13 @@
 import { redirect } from "next/navigation";
-import { RegistrationComplete } from "@/components/registration/registration-complete";
+import { TodayDashboard } from "@/components/resident/today-dashboard";
 import { getCurrentSession } from "@/lib/current-session";
+import { indiaIsoDate } from "@/lib/india-date";
+import { createApplicationServices } from "@/services/dependencies";
 
 export default async function ResidentHomePage() {
   const session = await getCurrentSession();
   if (!session) redirect("/sign-up");
   if (session.state === "verified") redirect("/join-property");
-  return <RegistrationComplete name={session.name} phone={session.phone} />;
+  const today = await createApplicationServices().today.getForResident(session, indiaIsoDate());
+  return <TodayDashboard today={today} />;
 }

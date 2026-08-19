@@ -28,6 +28,10 @@ const config: Config = {
           300: "#f4ce72",
           500: "#d99a22"
         },
+        channel: {
+          wall: "#efeae2",
+          bubble: "#d9fdd3"
+        },
         stone: {
           100: "#ebe8df",
           300: "#c7c2b6",

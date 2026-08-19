@@ -1,4 +1,6 @@
+import { and, eq } from "drizzle-orm";
 import type { DatabaseClient } from "@/db/client";
+import { withDatabaseRetry } from "@/db/retry";
 import {
   collectionEvents,
   type CollectionEvent,
@@ -11,6 +13,21 @@ export function createCollectionEventRepository(database: DatabaseClient) {
     async create(input: NewCollectionEvent): Promise<CollectionEvent> {
       const rows = await database.insert(collectionEvents).values(input).returning();
       return requireInsertedRow(rows, "Collection event");
+    },
+    async findByPropertyAndDate(propertyId: string, eventDate: string): Promise<CollectionEvent | null> {
+      const rows = await withDatabaseRetry("Collection-event lookup", () =>
+        database
+          .select()
+          .from(collectionEvents)
+          .where(
+            and(
+              eq(collectionEvents.propertyId, propertyId),
+              eq(collectionEvents.eventDate, eventDate),
+            ),
+          )
+          .limit(1),
+      );
+      return rows[0] ?? null;
     },
   };
 }

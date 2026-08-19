@@ -18,6 +18,7 @@
     "verify:m0": "node scripts/verify-milestone.mjs M0",
     "verify:m1": "node scripts/verify-milestone.mjs M1",
     "verify:m2": "node scripts/verify-milestone.mjs M2",
+    "verify:m3": "node scripts/verify-milestone.mjs M3",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/db/seed.ts",
