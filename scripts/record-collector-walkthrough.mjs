@@ -9,45 +9,74 @@ function pause(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function unusedPhone() {
-  const suffix = String((Date.now() + process.pid) % 100_000).padStart(5, "0");
+function unusedPhone(offset) {
+  const suffix = String((Date.now() + process.pid + offset) % 100_000).padStart(5, "0");
   return `+91-00000-${suffix}`;
 }
+
+const queueResidents = [
+  "Meera Joseph",
+  "Fathima Ali",
+  "Diya Paul",
+  "Sanjay Rao",
+  "Neha Thomas",
+];
 
 const setup = await chromium.launch({ headless: true });
 const setupContext = await setup.newContext();
 const setupPage = await setupContext.newPage();
 
-const phone = unusedPhone();
-const otpBody = await (await setupPage.request.post(`${origin}/api/auth/request-otp`, {
-  data: { phone },
+async function markKeptOutFor(name, phone, propertyId) {
+  const otpBody = await (await setupPage.request.post(`${origin}/api/auth/request-otp`, {
+    data: { phone },
+  })).json();
+  if (!otpBody.devOtp) throw new Error(`Could not request an OTP for ${name}.`);
+  const verify = await setupPage.request.post(`${origin}/api/auth/verify-otp`, {
+    data: { phone, name, otp: otpBody.devOtp },
+  });
+  const verifyCookie = verify.headers()["set-cookie"];
+  if (!verifyCookie) throw new Error(`Sign-in failed for ${name}.`);
+  let cookie = verifyCookie.split(";")[0];
+  const verifyBody = await verify.json();
+  if (verifyBody.next === "/join-property") {
+    const register = await setupPage.request.post(`${origin}/api/occupants/register`, {
+      headers: { cookie, "content-type": "application/json" },
+      data: { propertyId, role: "tenant", moveInDate: "2026-08-01" },
+    });
+    if (register.status() !== 201) throw new Error(`Registration failed for ${name}.`);
+    cookie = (register.headers()["set-cookie"] ?? verifyCookie).split(";")[0];
+  }
+  const today = await (await setupPage.request.get(`${origin}/api/today`, {
+    headers: { cookie },
+  })).json();
+  if (!today.today?.collection?.id) throw new Error(`${name} has no collection event today.`);
+  const keptOut = await setupPage.request.post(`${origin}/api/handovers/kept-out`, {
+    headers: { cookie, "content-type": "application/json" },
+    data: { collectionEventId: today.today.collection.id },
+  });
+  if (!keptOut.ok()) throw new Error(`Could not mark kept out for ${name}.`);
+}
+
+const scoutPhone = unusedPhone(0);
+const scoutOtp = await (await setupPage.request.post(`${origin}/api/auth/request-otp`, {
+  data: { phone: scoutPhone },
 })).json();
-if (!otpBody.devOtp) throw new Error("Could not request a setup OTP.");
-const verify = await setupPage.request.post(`${origin}/api/auth/verify-otp`, {
-  data: { phone, name: "Collector Demo Resident", otp: otpBody.devOtp },
+const scoutVerify = await setupPage.request.post(`${origin}/api/auth/verify-otp`, {
+  data: { phone: scoutPhone, name: "Queue Scout", otp: scoutOtp.devOtp },
 });
-const verifyCookie = verify.headers()["set-cookie"];
-if (!verifyCookie) throw new Error("Setup sign-in did not issue a session.");
-const cookieHeader = verifyCookie.split(";")[0];
+const scoutCookie = (scoutVerify.headers()["set-cookie"] ?? "").split(";")[0];
 const properties = await (await setupPage.request.get(`${origin}/api/properties`, {
-  headers: { cookie: cookieHeader },
+  headers: { cookie: scoutCookie },
 })).json();
-const propertyId = properties.properties?.[0]?.id;
-if (!propertyId) throw new Error("No property available for collector demo setup.");
-const register = await setupPage.request.post(`${origin}/api/occupants/register`, {
-  headers: { cookie: cookieHeader, "content-type": "application/json" },
-  data: { propertyId, role: "tenant", moveInDate: "2026-08-01" },
-});
-const registerCookie = (register.headers()["set-cookie"] ?? verifyCookie).split(";")[0];
-const today = await (await setupPage.request.get(`${origin}/api/today`, {
-  headers: { cookie: registerCookie },
-})).json();
-if (!today.today?.collection?.id) throw new Error("Setup resident has no collection event today.");
-const keptOut = await setupPage.request.post(`${origin}/api/handovers/kept-out`, {
-  headers: { cookie: registerCookie, "content-type": "application/json" },
-  data: { collectionEventId: today.today.collection.id },
-});
-if (!keptOut.ok()) throw new Error("Could not seed a kept-out handover for the collector queue.");
+const propertyIds = (properties.properties ?? []).map((property) => property.id).filter(Boolean);
+if (propertyIds.length < 2) throw new Error("Need at least two properties to build a realistic collector queue.");
+
+for (const [index, name] of queueResidents.entries()) {
+  const propertyId = propertyIds[index % propertyIds.length];
+  if (!propertyId) throw new Error("Missing property for collector queue setup.");
+  await markKeptOutFor(name, unusedPhone(index + 1), propertyId);
+}
+
 await setupContext.close();
 await setup.close();
 
@@ -105,10 +134,20 @@ await moveAndClick(page.getByRole("button", { name: "Open collector queue" }));
 
 await page.getByRole("heading", { name: "Pickup confirmations" }).waitFor();
 await page.getByRole("button", { name: "Mark collected" }).first().waitFor({ timeout: 15_000 });
-await pause(7000);
+const pendingButtons = page.getByRole("button", { name: "Mark collected" });
+if ((await pendingButtons.count()) < 4) {
+  throw new Error("Collector queue does not have enough pending pickups for a realistic demo.");
+}
+await pause(3500);
+await page.evaluate(() => window.scrollTo({ top: 280, behavior: "smooth" }));
+await pause(2500);
+await page.evaluate(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+await pause(2000);
 await moveAndClick(page.getByRole("button", { name: "Mark collected" }).first());
 await page.getByText("Collection confirmed").waitFor();
-await pause(7000);
+await pause(4500);
+await page.evaluate(() => window.scrollTo({ top: 240, behavior: "smooth" }));
+await pause(2500);
 
 await pause(2500);
 const video = page.video();

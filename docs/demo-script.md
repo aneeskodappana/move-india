@@ -15,5 +15,5 @@ Silent screen recordings of https://vandi-eight.vercel.app. No voiceover — the
 
 1. Open the landing page and click **Open collector demo**.
 2. Show **DEV collector mode** and type the fixed demo code `654321`.
-3. Open the pickup queue of resident-marked handovers.
-4. Click **Mark collected** and leave the separate collector timestamp on the record.
+3. Open a realistic pickup queue with several kept-out addresses.
+4. Scroll the list, mark one collected, and leave the remaining stops waiting.
