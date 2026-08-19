@@ -296,7 +296,7 @@ Update the **Status** column as you go — this table *is* your progress tracker
 | M4 | Handover confirmation | Sat–Sun Aug 22–23 | Done | Two-sided handover log (resident "kept out" / collector "collected") working against real data. **Authorization test:** an occupant cannot mark handover for a property they're not registered to. Primary journey (§2) runs start to finish on seeded data. |
 | M5 | Payments & history | Mon Aug 24 | Done | Payment ledger + mock UPI flow + receipt generation. History screen combines handover + payment logs, filterable, exportable. Payment service unit tests passing. |
 | M6 | Polish & security pass | Tue Aug 25 | Done | Full §8.5 checklist complete. Mobile/throttled-connection check done. `npm audit` clean of high/critical. Deployed to Vercel; live link stable. |
-| M7 | Demo & write-up | Wed Aug 26 | Not started | ≤3-minute demo video recorded (§11 script). Submission write-up finalized from the idea doc's §7 template with actual functional/mocked details. Buffer fixes applied. |
+| M7 | Demo & write-up | Wed Aug 26 | Done | ≤3-minute demo video recorded (§11 script). Submission write-up finalized from the idea doc's §7 template with actual functional/mocked details. Buffer fixes applied. |
 | M8 | Submit | Thu Aug 27 | Not started | Final smoke test of the live link. Form submitted. Deploy frozen — no changes after early morning. |
 
 If M4 (the weekend) slips, protect M5 and M6 by cutting a secondary journey from §3 first — never by skipping the §8.5 security pass or the authorization test in M4, since that test is the direct proof of the product's core claim.

@@ -451,6 +451,42 @@ const suites = {
     smokeTest: false,
     securityPolishSmokeTest: true,
   },
+  M7: {
+    requiredFiles: [
+      "docs/submission-write-up.md",
+      "docs/demo-script.md",
+      "docs/vandi-demo.mp4",
+      "vandi-idea-doc.docx",
+    ],
+    fileAssertions: [
+      {
+        file: "docs/submission-write-up.md",
+        description: "Write-up discloses mocked OTP, channels, UPI, and no government connection",
+        verify: (content) =>
+          content.includes("DEV MODE") &&
+          content.includes("No money moves") &&
+          content.includes("Haritha Mithram") &&
+          content.includes("https://vandi-eight.vercel.app"),
+      },
+      {
+        file: "docs/demo-script.md",
+        description: "Demo script follows the four-part §11 outline",
+        verify: (content) =>
+          content.includes("Cold open") &&
+          content.includes("Why it happens") &&
+          content.includes("The journey") &&
+          content.includes("vandi-eight.vercel.app"),
+      },
+    ],
+    commands: [
+      { label: "Lint", command: "npm", args: ["run", "lint"] },
+      { label: "Strict type check", command: "npm", args: ["run", "typecheck"] },
+      { label: "Regression tests", command: "npm", args: ["run", "test"] },
+      { label: "Production dependency audit", command: "npm", args: ["audit", "--omit=dev", "--audit-level=high"] },
+    ],
+    videoDurationMaxSeconds: 180,
+    smokeTest: false,
+  },
 };
 
 function record(checks, label, status, detail) {
@@ -1154,6 +1190,19 @@ async function main() {
     }
     if (suite.securityPolishSmokeTest) {
       await runSecurityPolishSmokeTest(checks);
+    }
+    if (suite.videoDurationMaxSeconds) {
+      const probe = spawnSync(
+        "ffprobe",
+        ["-v", "error", "-show_entries", "format=duration", "-of", "default=nw=1:nk=1", "docs/vandi-demo.mp4"],
+        { cwd: projectRoot, encoding: "utf8" },
+      );
+      const duration = Number.parseFloat(probe.stdout.trim());
+      if (!Number.isFinite(duration) || duration <= 0 || duration > suite.videoDurationMaxSeconds) {
+        record(checks, "Demo video is within 3 minutes", "failed", probe.stdout.trim() || probe.stderr.trim());
+        throw new Error("Demo video duration is missing or longer than 3 minutes.");
+      }
+      record(checks, "Demo video is within 3 minutes", "passed", `${duration.toFixed(1)}s`);
     }
   } catch (error) {
     status = "failed";

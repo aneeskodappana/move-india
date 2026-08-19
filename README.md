@@ -36,6 +36,7 @@ npm run verify:m0
 npm run verify:m1
 npm run verify:m5
 npm run verify:m6
+npm run verify:m7
 ```
 
 See [the milestone verification flow](docs/milestone-verification.md) for the verifier contract and current gate status.
@@ -55,3 +56,5 @@ The M1 seed is deterministic and idempotent. It contains only invented addresses
 
 - `vandi-idea-doc.docx` explains the problem, evidence, insight, and submission story.
 - `vandi-technical-spec.md` defines scope, architecture, security rules, milestones, and demo flow.
+- `docs/submission-write-up.md` is the finalized form text.
+- `docs/vandi-demo.mp4` is the ≤3-minute demo (script in `docs/demo-script.md`).

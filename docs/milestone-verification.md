@@ -33,7 +33,8 @@ npm run verify:m3
 npm run verify:m4
 npm run verify:m5
 npm run verify:m6
-npm run verify:milestone -- M6
+npm run verify:m7
+npm run verify:milestone -- M7
 ```
 
 Each later milestone adds its own suite before that milestone can be marked complete. The status record below is updated only after the corresponding suite passes.
@@ -46,10 +47,13 @@ Each later milestone adds its own suite before that milestone can be marked comp
 | M3 · Broadcast engine | Passed · 2026-08-19 · `d2c49d1` | M4 unlocked |
 | M4 · Handover confirmation | Passed · 2026-08-19 · `60b234b` | M5 unlocked |
 | M5 · Payments and history | Passed · 2026-08-19 · `9009e7b` | M6 unlocked |
-| M6 · Polish and security pass | Passed · 2026-08-19 | M7 unlocked |
+| M6 · Polish and security pass | Passed · 2026-08-19 · `7bb0075` | M7 unlocked |
+| M7 · Demo and write-up | Passed · 2026-08-19 | M8 unlocked |
 
 The M4 report contains 25 passing checks: strict static gates, 62 tests, production build, live database regression, clean production dependency audit, and a live HTTP journey that proves cross-property denial before completing the resident → collector → resident record. Browser verification also completed the flow at mobile and desktop breakpoints with no horizontal overflow or framework error overlay; it caught and drove the resident refresh regression fix before the final verifier run.
 
 The M5 report contains 29 passing checks: strict static gates, 79 tests, production build, live database regression, clean production dependency audit, and a live HTTP journey that proves Anjali’s proof pack includes the missing-collector gap and a paid receipt, then creates a new resident, records a mock UPI payment, issues a digital receipt, and denies cross-occupant receipt access.
 
 The M6 report contains 31 passing checks: the §8.5 security record, wrap-safe resident chrome, loading skeletons, production security headers, collector rate-limiting, rejection of the example session secret, 84 tests, a clean production audit, and a live HTTP journey that proves landing disclosure, unauthenticated mutation denial, and OTP 429. Production is live at https://vandi-eight.vercel.app.
+
+The M7 report confirms the finalized submission write-up, the four-part demo script, and a 176.9-second walkthrough video assembled from live production screenshots plus narration.
